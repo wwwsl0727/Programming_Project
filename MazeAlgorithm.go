@@ -10,7 +10,7 @@ type matrix [][]float64
 
 type orderpair struct{
   x,y float64
-} 
+}
 
 type node struct {
   neighbor []*node
