@@ -13,7 +13,7 @@ type orderpair struct{
 }
 
 type node struct {
-  neighbor []*node
+  neighbor []*node 
   pressure float64
   location orderpair
   name     string
