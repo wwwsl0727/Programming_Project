@@ -68,13 +68,13 @@ func main() {
 	N13.name, N14.name, N15.name, N16.name, N17.name, N18.name, N19.name = "N13", "N14", "N15", "N16", "N17", "N18", "N19"
 	var maze Maze
 	maze = append(maze, &N1, &N2, &N3, &N4, &N5, &N6, &N7, &N8, &N9, &N10, &N11, &N12, &N13, &N14, &N15, &N16, &N17, &N18, &N19)
-	// fmt.Println("address of N1", maze[0])                            // &{[0xc000086180] 0 {0 0} N1}
-	// fmt.Println("attributes of N1", *maze[0])                        //{[0xc000086180] 0 {0 0} N1}
-	// fmt.Println("name of N1", (*maze[0]).name)                       //N1
-	// fmt.Println(" address of neighbors of N1", (*maze[0]).neighbors) //[&N6] [0xc0000980f0]
-	// address := (*maze[0]).neighbors[0]                               //&N6
-	// fmt.Println("address of N6", address)                            //&N6
-	// fmt.Println("name of N6", (*address).name)                       //P6
+	fmt.Println("address of N1", maze[0])                            // &{[0xc000086180] 0 {0 0} N1}
+	fmt.Println("attributes of N1", *maze[0])                        //{[0xc000086180] 0 {0 0} N1}
+	fmt.Println("name of N1", (*maze[0]).name)                       //"N1"
+	fmt.Println(" address of neighbors of N1", (*maze[0]).neighbors) //[&N6] [0xc0000980f0]
+	address := (*maze[0]).neighbors[0]                               //&N6
+	fmt.Println("address of N6", address)                            //&N6
+	fmt.Println("name of N6", (*address).name)                       //"N6"
 
 	//Check if the intialization is right
 	//For each node
@@ -89,4 +89,8 @@ func main() {
 	//
 	// }
 
+	//Initialize Pij, Qij, Dij
+	//Compute Pij
+	//Compute Qij
+	//Compute Dij
 }
