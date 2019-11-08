@@ -95,8 +95,7 @@ func main() {
 
 	numgen := 1
 
-	//Q := MazeEvolve(maze, numgen)
-	MazeEvolve(maze, numgen)
+	Q := MazeEvolve(maze, numgen)
 }
 
 //MazeEvolve takes in maze as input and return the flow quantity matrix
@@ -107,7 +106,7 @@ func MazeEvolve(maze Maze, numgen int) []Matrix {
 	for i := range P {
 		P[i] = make([]float64, N)
 	}
-	//Q := make([]Matrix, numgen+1)
+	Q := make([]Matrix, numgen+1)
 	D := make([]Matrix, numgen+1)
 
 	//Initialize D[0]_ij=0.5, d= D[0]
@@ -118,22 +117,16 @@ func MazeEvolve(maze Maze, numgen int) []Matrix {
 
 	//Evolve
 	for n := 1; n <= numgen; n++ {
-
 		//Compute Pij
-		//P[n] = ComputeP(D[n-1], L, P[n-1])
 		P[n], _ = ComputeP(D[n-1], L)
 		//Compute Qij
+		Q[n] = ComputeQ(D[n-1], L, p[n])
+		//Compute Dij
 
-		//Q[n] = ComputeQ(D[n-1], L, P[n])
-
-		//D[n]=ComputeD()
 	}
-	// fmt.Println("here")
-	fmt.Println(P[1])
-	return D
-}
 
-// func ComputeD()
+	return Q
+}
 
 func ComputeQ(d, L Matrix, p []float64) Matrix {
 	N := len(d)
@@ -155,139 +148,6 @@ func ComputeQ(d, L Matrix, p []float64) Matrix {
 	return q
 }
 
-/*func ComputeP(d, L Matrix, x []float64) []float64 {
-	N := len(d)
-	A := InitializePCoefficient(d, L)
-	b := make([]float64, N)
-	b[0] = -1
-	b[1] = 1
-	//ICCG
-
-	r := VectorMinus(b, DotVector(A, x)) //N*1 for p,r,b,x0, A N*N
-	fmt.Println("r,p", r)
-	p := r
-
-	rsold := dot2vector(r, r)
-	fmt.Println("rsold", rsold)
-	for i := 0; i <= 0; i++ {
-		Ap := DotVector(A, p)
-		fmt.Println("Ap", Ap)
-		alpha := rsold / dot2vector(p, Ap)
-		fmt.Println("Alpha", alpha)
-		x = VectorAdd(x, VectorMulConstant(p, alpha))
-		fmt.Println("x", x)
-		r := VectorMinus(r, VectorMulConstant(Ap, alpha))
-		fmt.Println("r", r)
-		rsnew := dot2vector(r, r)
-		fmt.Println("rsnew", rsnew)
-		if math.Sqrt(rsnew) < 1e-10 {
-			break
-		}
-		temp := VectorMulConstant(p, rsnew/rsold)
-		p = VectorAdd(r, temp)
-		rsold = rsnew
-	}
-	return x
-}
-func VectorMinus(a []float64, b []float64) []float64 {
-	m1 := len(a)
-	m2 := len(b)
-	if m1 != m2 {
-		panic("the given matrixs for addition have wrong dimension")
-	}
-	c := make([]float64, m1)
-	for i := 0; i <= m1-1; i++ {
-		c[i] = a[i] - b[i]
-	}
-	return c
-}
-func VectorMulConstant(a []float64, b float64) []float64 {
-	for i := 0; i <= len(a)-1; i++ {
-		a[i] *= b
-	}
-	return a
-}
-func VectorAdd(a []float64, b []float64) []float64 {
-	m1 := len(a)
-	m2 := len(b)
-	if m1 != m2 {
-		panic("the given matrixs for addition have wrong dimension")
-	}
-	c := make([]float64, m1)
-	for i := 0; i <= m1-1; i++ {
-		c[i] = a[i] + b[i]
-	}
-	return c
-}
-func dot2vector(a []float64, b []float64) float64 {
-	m1 := len(a)
-	m2 := len(b)
-	if m1 != m2 {
-		panic("the given matrixs for multiplification have wrong dimension")
-	}
-
-	result := 0.0
-	for i := 0; i <= m1-1; i++ {
-		result += a[i] * b[i]
-	}
-	return result
-}
-func DotVector(a Matrix, b []float64) []float64 {
-	m1 := len(a)
-	m2 := len(b)
-	n1 := len(a[0])
-	if m2 != n1 {
-		panic("the given matrixs for multiplification have wrong dimension")
-	}
-
-	result := make([]float64, m1)
-
-	for i := 0; i <= m1-1; i++ {
-		for k := 0; k <= n1-1; k++ {
-			result[i] += a[i][k] * b[k]
-		}
-	}
-	return result
-}
-func dot(a, b [][]float64) [][]float64 {
-	m1 := len(a)
-	m2 := len(b)
-	n1 := len(a[0])
-	n2 := len(b[1])
-
-	result := make([][]float64, m1)
-	for i := range result {
-		result[i] = make([]float64, n2)
-	}
-	if m2 != n1 {
-		panic("the given matrixs for multiplification have wrong dimension")
-	}
-
-	for i := 0; i <= m1-1; i++ {
-		for k := 0; k <= n2-1; k++ {
-			for j := 0; j <= n1-1; j++ {
-				result[i][k] += a[i][j] * b[j][k]
-			}
-		}
-	}
-	return result
-}
-func Transpose(a [][]float64) [][]float64 {
-	m := len(a)
-	n := len(a[0])
-
-	result := make([][]float64, n)
-	for i := range result {
-		result[i] = make([]float64, m)
-	}
-	for i := range a {
-		for j := range a[i] {
-			result[j][i] = a[i][j]
-		}
-	}
-	return result
-} */
-
 //Check if A is positive and linear dependent?
 //CalculateP takes in D and L matrix, P2=0. Solve the remaining n-1 P by n equations. Returning p matrix is a list of float64 variables.
 func ComputeP(d, L Matrix) ([]float64, error) {
@@ -296,11 +156,7 @@ func ComputeP(d, L Matrix) ([]float64, error) {
 	//Initialize the faction matrix dij/lij, augment A by adding the b terms.
 
 	A := InitializePCoefficient(d, L)
-
-	// //P2=p[1]==0,delete the second row
-	// A = append(A[:1], A[2:]...)
-
-	// //next delete the second column because p2=0
+	// delete the second column because p2=0
 	for i := range A {
 		A[i] = append(A[i][:1], A[i][2:]...)
 	}
@@ -357,7 +213,6 @@ func ComputeP(d, L Matrix) ([]float64, error) {
 }
 
 //i_max := argmax (i = h ... m, abs(A[i, k]))*/
-
 func Argmax(i, k int, A Matrix) int {
 	N := len(A)
 	max := A[i][k]
@@ -370,6 +225,7 @@ func Argmax(i, k int, A Matrix) int {
 	}
 	return imax
 }
+
 func InitializePCoefficient(d, L Matrix) Matrix {
 	N := len(d)
 	M := N + 1 //number of columns
