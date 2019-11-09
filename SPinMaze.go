@@ -95,36 +95,57 @@ func main() {
 
 	numgen := 1
 
-	Q := MazeEvolve(maze, numgen)
+	nsteps := 10000 // This is for calculating conductivity
+
+	t := 1.0
+
+	fmt.Println(MazeEvolve(maze, numgen, nsteps, t))
+
 }
 
 //MazeEvolve takes in maze as input and return the flow quantity matrix
-func MazeEvolve(maze Maze, numgen int) []Matrix {
+func MazeEvolve(maze Maze, numgen, nsteps int, t float64) []Matrix {
 	N := len(maze)
 	// Initialize Pij, Qij, Dij
 	P := make([][]float64, numgen+1)
 	for i := range P {
 		P[i] = make([]float64, N)
 	}
+
 	Q := make([]Matrix, numgen+1)
+	Q[0] = InitializeFirstMatrix(N, 0.0)
+
 	D := make([]Matrix, numgen+1)
 
 	//Initialize D[0]_ij=0.5, d= D[0]
-	D[0] = InitializeD(N)
+	D[0] = InitializeFirstMatrix(N, 0.5)
 
 	//Compute the length of node i and its neighbor
 	L := ComputeLengthMatrix(maze)
 
 	//Evolve
 	for n := 1; n <= numgen; n++ {
+
 		//Compute Pij
 		P[n], _ = ComputeP(D[n-1], L)
 		//Compute Qij
-		Q[n] = ComputeQ(D[n-1], L, p[n])
-		//Compute Dij
+		Q[n] = ComputeQ(D[n-1], L, P[n])
 
+		D[n] = CalculateConductivity(Q[n], t, nsteps)
+		count := 0
+
+		for i := range Q {
+			for j := range Q[n] {
+				if math.Abs(Q[n][i][j]-Q[n-1][i][j]) < 10^(-5) {
+					count++
+				}
+			}
+		}
+		if count == len(Q)*len(Q[0]) {
+			break
+
+		}
 	}
-
 	return Q
 }
 
@@ -190,7 +211,7 @@ func ComputeP(d, L Matrix) ([]float64, error) {
 			}
 		}
 		/*Increase pivot row and column*/
-		fmt.Println("i,Ai", i, A[i])
+		//fmt.Println("i,Ai", i, A[i])
 		i++
 		k++
 	}
@@ -260,6 +281,35 @@ func InitializePCoefficient(d, L Matrix) Matrix {
 	return A
 }
 
+//Step 10 Calculates the conductivity D of each tube according to Eqs.6 and
+//Semi-implicit Euler method (calculation in notability); t = 1s, n = 100
+func CalculateConductivity(Q Matrix, t float64, n int) Matrix {
+	lenQ := len(Q)
+	D := make(Matrix, lenQ)
+	for i := 0; i < lenQ; i++ {
+		D[i] = make([]float64, lenQ)
+	}
+
+	for i := 0; i < lenQ; i++ {
+		for j := 0; j < lenQ; j++ {
+			D[i][j] = CalculateTubeConductivity(Q[i][j], D[i][j], t, n)
+		}
+	}
+
+	return D
+
+}
+
+func CalculateTubeConductivity(Qij, Dijn float64, t float64, n int) float64 {
+	Dijn1 := 0.0
+
+	for i := 0; i < n; i++ {
+		Dijn1 = ((float64(n)/t)*math.Abs(Qij) + Dijn) / (1 + float64(n)/t)
+	}
+
+	return Dijn1
+}
+
 //ComputeLength takes in the maze and returns the length between the distance from the node to its neighbors
 func ComputeLengthMatrix(maze Maze) Matrix {
 	N := len(maze)
@@ -294,7 +344,7 @@ func ComputeLength(maze Maze, i, j int) float64 {
 }
 
 //Initialize D takes the length of D[0] and returns N*N matrix where value of each entry is 0.5
-func InitializeD(N int) Matrix {
+func InitializeFirstMatrix(N int, value float64) Matrix {
 	d := make(Matrix, N)
 	for r := range d {
 		d[r] = make([]float64, N)
@@ -302,7 +352,7 @@ func InitializeD(N int) Matrix {
 
 	for r := range d {
 		for c := range d[r] {
-			d[r][c] = 0.5
+			d[r][c] = value
 		}
 	}
 	return d
