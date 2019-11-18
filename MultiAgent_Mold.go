@@ -100,12 +100,12 @@ func (matrix multiAgentMatrix) SynthesisComparator(row, col int, WT, WN float64)
 	sensor2 := matrix[row-sensorLength][col]
 	sensor3 := matrix[row-sensorLength][col+sensorLength]
 
-	sensor1_score := calculateScore(sensor1, WT, WN)
-	sensor2_score := calculateScore(sensor2, WT, WN)
-	sensor3_score := calculateScore(sensor3, WT, WN)
+	sensor1Score := calculateScore(sensor1, WT, WN)
+	sensor2Score := calculateScore(sensor2, WT, WN)
+	sensor3Score := calculateScore(sensor3, WT, WN)
 
 	//Find the biggest of three scores and change agent's direction
-	max := FindMax(sensor1_score, sensor2_score, sensor3_score)
+	max := FindMax(sensor1Score, sensor2Score, sensor3Score)
 	if max == 1 {
 		matrix[row][col].agent.direction -= 1
 	}
