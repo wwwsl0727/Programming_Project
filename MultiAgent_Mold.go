@@ -24,7 +24,7 @@ func main() {
 	WT := 0.4
 	WN := 1 - WT
 
-	CN := 10     //The Chemo-Nutrient concentration of food
+	CN := 10.0   //The Chemo-Nutrient concentration of food
 	dampN := 0.2 //Diffusion damping factor of chemo- nutrient
 	// filter for nutrient 5x5
 
@@ -44,13 +44,13 @@ func main() {
 	}
 	//put three food spots on the Matrix
 	matrix[10][100].IsFood = true
-	matrix[10][100].foodChemo = 10
+	matrix[10][100].foodChemo = CN //10
 
 	matrix[190][10].IsFood = true
-	matrix[190][10].foodChemo = 10
+	matrix[190][10].foodChemo = CN //10
 
 	matrix[190][190].IsFood = true
-	matrix[190][190].foodChemo = 10
+	matrix[190][190].foodChemo = CN //10
 }
 
 type multiAgentMatrix [][]box
@@ -93,16 +93,34 @@ func (matrix multiAgentMatrix) SynthesisComparator(row, col int, WT, WN float64)
 		panic("This box has no Agent!")
 	}
 
-	sensorLength := matrix[row][col].agent.sensorLength
+	sensorL := matrix[row][col].agent.sensorLength
 
-	//three sensors location
-	sensor1 := matrix[row-sensorLength][col-sensorLength]
-	sensor2 := matrix[row-sensorLength][col]
-	sensor3 := matrix[row-sensorLength][col+sensorLength]
+	//Check if three sensors are in field and calculate the socre
+	var sensor1Score, sensor2Score, sensor3Score float64
 
-	sensor1Score := calculateScore(sensor1, WT, WN)
-	sensor2Score := calculateScore(sensor2, WT, WN)
-	sensor3Score := calculateScore(sensor3, WT, WN)
+	//sensor 1
+	if InField(matrix, row, col) {
+		sensor1 := matrix[row-sensorL][col-sensorL]
+		sensor1Score = calculateScore(sensor1, WT, WN)
+	} else {
+		sensor1Score = 0
+	}
+
+	//sensor 2
+	if InField(matrix, row, col) {
+		sensor2 := matrix[row-sensorL][col]
+		sensor2Score = calculateScore(sensor2, WT, WN)
+	} else {
+		sensor2Score = 0
+	}
+
+	//sensor 3
+	if InField(matrix, row, col) {
+		sensor3 := matrix[row-sensorL][col+sensorL]
+		sensor3Score = calculateScore(sensor3, WT, WN)
+	} else {
+		sensor3Score = 0
+	}
 
 	//Find the biggest of three scores and change agent's direction
 	max := FindMax(sensor1Score, sensor2Score, sensor3Score)
@@ -113,6 +131,8 @@ func (matrix multiAgentMatrix) SynthesisComparator(row, col int, WT, WN float64)
 	// 	matrix[row][col].agent.direction
 	// }
 	if max == 3 {
+		matrix[row][col].agent.direction += 1
+	} else {
 		matrix[row][col].agent.direction += 1
 	}
 }
@@ -132,4 +152,16 @@ func FindMax(score1, score2, score3 float64) int {
 		}
 	}
 	panic("Error when finding Max value")
+}
+
+//InField takes a GameBoard and i/j indices.  It returns true if (i,j) is a valid entry
+//of the board.
+func InField(M multiAgentMatrix, i, j int) bool {
+	numRows := len(M)
+	numCols := len(M[0])
+	if i < 0 || j < 0 || i >= numRows || j >= numCols {
+		return false
+	}
+	// if we make it here, we are in the field.
+	return true
 }
