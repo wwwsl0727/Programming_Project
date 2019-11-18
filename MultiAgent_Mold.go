@@ -68,6 +68,8 @@ type Agent struct {
 	sensorLength  int // 7 in 50% agent case
 }
 
+//Takes a []box, make agents in half of boxes.
+//Each box has 50% of chance of having a agent.
 func generateAgent(row []box, SensorArmLength int) []box {
 
 	for i := range row {
@@ -124,15 +126,17 @@ func (matrix multiAgentMatrix) SynthesisComparator(row, col int, WT, WN float64)
 
 	//Find the biggest of three scores and change agent's direction
 	max := FindMax(sensor1Score, sensor2Score, sensor3Score)
-	if max == 1 {
+	if max == 1 { //If the sensor1Score is the biggest score
+		//choose the left direction
 		matrix[row][col].agent.direction -= 1
 	}
+
+	//choose the orginal direction
 	// if max == 2 {
 	// 	matrix[row][col].agent.direction
 	// }
 	if max == 3 {
-		matrix[row][col].agent.direction += 1
-	} else {
+		//choose the right direction
 		matrix[row][col].agent.direction += 1
 	}
 }
@@ -142,6 +146,7 @@ func calculateScore(B box, WT, WN float64) float64 {
 	return WT*B.trailChemo + WN*B.foodChemo
 }
 
+// find max index of three values
 func FindMax(score1, score2, score3 float64) int {
 	var slice = []float64{score1, score2, score3}
 	max := math.Max(score1, math.Max(score2, score3))
