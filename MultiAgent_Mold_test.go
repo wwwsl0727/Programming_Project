@@ -353,5 +353,81 @@ func TestUpdateChemo(t *testing.T) {
 /*
 func TestSynthesisComparator(t *testing.T) {
 
+	//Initialize board
+	board := InitializeBoard(15, 15)
+	sensorArmLength := 7
+	sensorAngle := math.Pi / float64(4)
+	sensorDiagonalL := float64(5) * math.Sqrt(2)
+
+	r := 3
+	c := 3
+	WT := 0.4    //WT: The weight of trail value sensed by an agent’s sensor
+	WN := 1 - WT //WN: The weight of nutrient value sensed by an agent’s sensor
+	//Initialize agent
+	board[r][c].IsAgent = true
+	var agent Agent
+	agent.sensorDiagonalL = sensorDiagonalL
+	agent.sensorLength = sensorArmLength
+	board[r][c].agent = &agent
+
+	//For different direction, check the according behavriour
+	//left out of boundary, turn right 45 degrees
+	board[r][c].agent.direction = -float64(1) / float64(4) * math.Pi
+	expectedDirection := board[r][c].agent.direction + sensorAngle
+	agentDirection := board.SynthesisComparator(r, c, WT, WN, sensorAngle)
+
+	if agentDirection != expectedDirection {
+		t.Errorf("left out of bound:expected direction is %f, in fact is %f", expectedDirection, agentDirection)
+	}
+
+	//right out of boundary, turn left 45 degrees
+	board[r][c].agent.direction = float64(3) * math.Pi / float64(4)
+	expectedDirection = board[r][c].agent.direction - sensorAngle
+	agentDirection = board.SynthesisComparator(r, c, WT, WN, sensorAngle)
+
+	if agentDirection != expectedDirection {
+		t.Errorf("right sensor out of bound,expected direction is %f, in fact is %f", expectedDirection, agentDirection)
+	}
+
+	//both out of boundaty, turn back
+	board[r][c].agent.direction = math.Pi
+	expectedDirection = board[r][c].agent.direction + math.Pi
+	agentDirection = board.SynthesisComparator(r, c, WT, WN, sensorAngle)
+
+	if agentDirection != expectedDirection {
+		t.Errorf("right sensor out of bound,expected direction is %f, in fact is %f", expectedDirection, agentDirection)
+	}
+
+	//Both inside the boundary
+	board[r][c].agent.direction = math.Pi / float64(4)
+	leftx, lefty, rightx, righty := CalculateSensorLocation(board[r][c].agent.direction, sensorAngle, sensorDiagonalL, r, c, sensorArmLength)
+	//Add chemo to the board
+	//sense left>right, turn left
+	board[leftx][lefty].foodChemo = 3.0
+	board[rightx][righty].foodChemo = 1.0
+	expectedDirection = board[r][c].agent.direction - sensorAngle
+	agentDirection = board.SynthesisComparator(r, c, WT, WN, sensorAngle)
+
+	if agentDirection != expectedDirection {
+		t.Errorf("right sensor out of bound,expected direction is %f, in fact is %f", expectedDirection, agentDirection)
+	}
+	//sense left<right, turn right
+	board[leftx][lefty].foodChemo = 1.0
+	board[rightx][righty].foodChemo = 3.0
+	expectedDirection = board[r][c].agent.direction + sensorAngle
+	agentDirection = board.SynthesisComparator(r, c, WT, WN, sensorAngle)
+
+	if agentDirection != expectedDirection {
+		t.Errorf("right sensor out of bound,expected direction is %f, in fact is %f", expectedDirection, agentDirection)
+	}
+	//left=right, random choose one direction
+	board[leftx][lefty].foodChemo = 3.0
+	board[rightx][righty].foodChemo = 3.0
+	expectedDirection = board[r][c].agent.direction - sensorAngle
+	agentDirection = board.SynthesisComparator(r, c, WT, WN, sensorAngle)
+
+	if agentDirection != expectedDirection {
+		t.Errorf("right sensor out of bound,expected direction is %f, in fact is %f", expectedDirection, agentDirection)
+	}
 }
 */

@@ -102,51 +102,60 @@ func main() {
 		//for each agent, update each agent
 		for r := range currBoard {
 			for c := range currBoard[0] {
-				//sense direction
+				//sense direction and change direction to the higher chemo direction.
 				agentDirection := currBoard.SynthesisComparator(r, c, WT, WN, sensorAngle)
 
-				//update direction,check if the forward direction is occupied
-				//direction 0,+- pi/2; +- pi; +- 3pi/2; +-2pi... / pi/4 = 0;2;4;6...
-				flag := 4 * agentDirection / math.Pi
-				var neighborr int
-				var neighborc int
-				if int(math.Abs(flag))%2 == 0 {
-					neighborr = r + int(math.Cos(agentDirection))
-					neighborc = c + int(math.Sin(agentDirection))
+				//direction 0,+- pi/2; +- pi; +- 3pi/2; +-2pi... / pi/4 = 0;2;4;6... a=L;else a=DiagonalL
+				flag := int(4 * agentDirection / math.Pi)
+				var forwardx int
+				var forwardy int
+
+				var a float64
+				if flag%2 == 0 {
+					a = float64(sensorArmLength)
 				} else {
-					neighborr = r + int(math.Sqrt(2)*math.Cos(agentDirection))
-					neighborc = c + int(math.Sqrt(2)*math.Sin(agentDirection))
+					a = sensorDiagonalL
 				}
 
+				forwardx = r + int(a*math.Cos(agentDirection))
+				forwardy = c + int(a*math.Sin(agentDirection))
+
 				currCell := currBoard[r][c]
-				neighborCell := currBoard[neighborr][neighborc]
+				forwardcell := currBoard[forwardx][forwardy]
 				//If the forward direction is occupied, change direction randomly and motionCounter--
-				if neighborCell.IsAgent == true {
+				if forwardcell.IsAgent == true {
 					currCell.agent.direction = float64(rand.Intn(8)+1) * sensorAngle
 					currCell.agent.motionCounter--
 					if currCell.agent.motionCounter < ET {
 						//currentCell die
 						currCell.IsAgent = false
-						currCell.agent.direction = float64(rand.Intn(8)+1) * sensorAngle
-						currCell.agent.motionCounter = 0
+						currCell.agent = nil
 					}
 				} else {
-					//If the forward direction is not occupied, move to that direction and leave trail
-					neighborCell.IsAgent = true
-					neighborCell.trailChemo += depT
-					neighborCell.agent.motionCounter = currCell.agent.motionCounter + 1
-					neighborCell.agent.direction = currCell.agent.direction
+					//If the forward direction is not occupied, move to that direction and leave trail in the new cell
+					forwardcell.IsAgent = true
+					forwardcell.trailChemo += depT
+					var forwardAgent *Agent
+					forwardAgent.motionCounter = currCell.agent.motionCounter + 1
+					//rotate to the direction with the higher sense value
+					forwardAgent.direction = currBoard.SynthesisComparator(forwardx, forwardy, WT, WN, sensorAngle)
+					forwardAgent.sensorDiagonalL = sensorDiagonalL
+					forwardAgent.sensorLength = sensorArmLength
+					forwardcell.agent = forwardAgent
 
 					//Check motionCounter>RT
-					if neighborCell.agent.motionCounter > RT {
+					if forwardcell.agent.motionCounter > RT {
 						//a new cell born in the father cell
-						currCell.IsAgent = true
+						currCell.agent.direction = float64(rand.Intn(8)+1) * sensorAngle
+						currCell.agent.motionCounter = 0
+						currCell.agent.sensorDiagonalL = sensorDiagonalL
+						currCell.agent.sensorLength = sensorArmLength
 					} else {
 						//there is no new cell in the father cell.
 						currCell.IsAgent = false
+						currCell.agent = nil
 					}
-					currCell.agent.motionCounter = 0
-					currCell.agent.direction = float64(rand.Intn(8)+1) * sensorAngle
+
 				}
 			}
 		}
@@ -293,7 +302,10 @@ func (matrix multiAgentMatrix) SynthesisComparator(row, col int, WT, WN, sensorA
 
 	// The direction of the left,right sensor is based on the current direction of the agent.
 	leftx, lefty, rightx, righty := CalculateSensorLocation(agentDirection, sensorAngle, DiagonalL, row, col, L)
-
+	// fmt.Println("leftx", leftx)
+	// fmt.Println("lefty", lefty)
+	// fmt.Println("rightx", rightx)
+	// fmt.Println("righty", righty)
 	//Get sample chemoattractant values from sensors.
 	// If left sensor and right sensor are all in the matrix
 	if InField(numRows, numCols, leftx, lefty) && InField(numRows, numCols, rightx, righty) {
@@ -303,9 +315,9 @@ func (matrix multiAgentMatrix) SynthesisComparator(row, col int, WT, WN, sensorA
 		FR := calculateScore(sensorRight, WT, WN)
 		if FL < FR {
 			//rotate right
-			matrix[row][col].agent.direction -= sensorAngle
-		} else if FL > FR {
 			matrix[row][col].agent.direction += sensorAngle
+		} else if FL > FR {
+			matrix[row][col].agent.direction -= sensorAngle
 		} else {
 			//random choose left and right
 			if rand.Intn(2) == 0 {
@@ -316,10 +328,13 @@ func (matrix multiAgentMatrix) SynthesisComparator(row, col int, WT, WN, sensorA
 		}
 	} else if InField(numRows, numCols, leftx, lefty) == false && InField(numRows, numCols, rightx, righty) {
 		// If the left sensor is out of bound while the right sensor is in, turn right
-		matrix[row][col].agent.direction -= sensorAngle
+		// fmt.Println("direction before change", matrix[row][col].agent.direction)
+		matrix[row][col].agent.direction += sensorAngle
+		// fmt.Println("direction changes into", matrix[row][col].agent.direction)
+		// fmt.Println("left out of bound")
 	} else if InField(numRows, numCols, leftx, lefty) && InField(numRows, numCols, rightx, righty) == false {
 		//Otherwise, it turns left
-		matrix[row][col].agent.direction += sensorAngle
+		matrix[row][col].agent.direction -= sensorAngle
 	} else {
 		//If both side is out of bound, the agent turns back
 		matrix[row][col].agent.direction += math.Pi
@@ -337,8 +352,9 @@ func CalculateSensorLocation(agentDirection, sensorAngle, DiagonalL float64, row
 	var righty int
 
 	flag := int(agentDirection / sensorAngle)
-	leftDirection := agentDirection + sensorAngle
-	rightDirection := agentDirection - sensorAngle
+
+	leftDirection := agentDirection - sensorAngle
+	rightDirection := agentDirection + sensorAngle
 
 	//a is the coefficient for left and right arms; b is the coefficient for forward arms
 	//a,b =L/DiagonalL
