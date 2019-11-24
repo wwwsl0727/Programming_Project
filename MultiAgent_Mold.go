@@ -36,7 +36,7 @@ func main() {
 	depT := 5.0  //The quantity of trail deposited by an agent
 	dampT := 0.1 //Diffusion damping factor of trail
 	// filter for trail 3x3
-	filterT := 5
+	filterT := 5 //3?
 
 	WT := 0.4    //WT: The weight of trail value sensed by an agent’s sensor
 	WN := 1 - WT //WN: The weight of nutrient value sensed by an agent’s sensor
@@ -133,7 +133,7 @@ func main() {
 				} else {
 					//If the forward direction is not occupied, move to that direction and leave trail
 					neighborCell.IsAgent = true
-					neighborCell.trailChemo += depT
+					neighborCell.trailChemo += depT //trail in new agent cell? How about trail in original place?
 					neighborCell.agent.motionCounter = currCell.agent.motionCounter + 1
 					neighborCell.agent.direction = currCell.agent.direction
 
@@ -145,7 +145,9 @@ func main() {
 						//there is no new cell in the father cell.
 						currCell.IsAgent = false
 					}
+					//new agent's motion counter is 0
 					currCell.agent.motionCounter = 0
+					//choose a random direction
 					currCell.agent.direction = float64(rand.Intn(8)+1) * sensorAngle
 				}
 			}
@@ -227,14 +229,9 @@ func (board multiAgentMatrix) Damp(damp float64, category string) {
 			if category == "food" {
 				if !board[i][j].IsFood {
 
-<<<<<<< HEAD
-//Takes a []box, make agents in half of boxes.
-//Each box has 50% of chance of having a agent.
-func generateAgent(row []box, SensorArmLength int) []box {
-=======
 					board[i][j].foodChemo *= factor
 					if i == 1 && j == 1 {
-						fmt.Println(board[i][j].foodChemo)
+						fmt.Println(board[i][j].foodChemo) //why?
 					}
 				}
 			} else {
@@ -255,7 +252,6 @@ func generateAgent(row []box, SensorArmLength int) []box {
 }
 
 func GenerateAgent(row []box, sensorArmLength int, sensorDiagonalL, sensorAngle float64) []box {
->>>>>>> 3a3a685a303e65c3fe4a7f698369b4bc6d5ff587
 
 	for i := range row {
 		n := rand.Intn(2) //50% chance of having an agent in the box
@@ -332,22 +328,6 @@ func (matrix multiAgentMatrix) SynthesisComparator(row, col int, WT, WN, sensorA
 	}
 	return matrix[row][col].agent.direction
 
-<<<<<<< HEAD
-	//Find the biggest of three scores and change agent's direction
-	max := FindMax(sensor1Score, sensor2Score, sensor3Score)
-	if max == 1 { //If the sensor1Score is the biggest score
-		//choose the left direction
-		matrix[row][col].agent.direction -= 1
-	}
-
-	//choose the orginal direction
-	// if max == 2 {
-	// 	matrix[row][col].agent.direction
-	// }
-	if max == 3 {
-		//choose the right direction
-		matrix[row][col].agent.direction += 1
-=======
 }
 
 //Calculate the location of left and right sensors.
@@ -373,7 +353,6 @@ func CalculateSensorLocation(agentDirection, sensorAngle, DiagonalL float64, row
 		a = float64(L)
 	} else {
 		a = DiagonalL
->>>>>>> 3a3a685a303e65c3fe4a7f698369b4bc6d5ff587
 	}
 	leftx = row + int(a*math.Cos(leftDirection))
 	lefty = col + int(a*math.Sin(leftDirection))
@@ -387,24 +366,7 @@ func calculateScore(B box, WT, WN float64) float64 {
 	return WT*B.trailChemo + WN*B.foodChemo
 }
 
-<<<<<<< HEAD
-// find max index of three values
-func FindMax(score1, score2, score3 float64) int {
-	var slice = []float64{score1, score2, score3}
-	max := math.Max(score1, math.Max(score2, score3))
-
-	for i := range slice {
-		if slice[i] == max {
-			return i
-		}
-	}
-	panic("Error when finding Max value")
-}
-
-//InField takes a GameBoard and i/j indices.  It returns true if (i,j) is a valid entry
-=======
 //InField takes a the numRows and numCols of a matrix and i/j indices.  It returns true if (i,j) is a valid entry
->>>>>>> 3a3a685a303e65c3fe4a7f698369b4bc6d5ff587
 //of the board.
 func InField(numRows, numCols, i, j int) bool {
 	if i < 0 || j < 0 || i >= numRows || j >= numCols {
