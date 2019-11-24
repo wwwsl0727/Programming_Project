@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 	"time"
@@ -36,7 +35,7 @@ func main() {
 	depT := 5.0  //The quantity of trail deposited by an agent
 	dampT := 0.1 //Diffusion damping factor of trail
 	// filter for trail 3x3
-	filterT := 5
+	filterT := 3
 
 	WT := 0.4    //WT: The weight of trail value sensed by an agent’s sensor
 	WN := 1 - WT //WN: The weight of nutrient value sensed by an agent’s sensor
@@ -237,9 +236,11 @@ func (board multiAgentMatrix) Damp(damp float64, category string) {
 				if !board[i][j].IsFood {
 
 					board[i][j].foodChemo *= factor
-					if i == 1 && j == 1 {
-						fmt.Println(board[i][j].foodChemo)
-					}
+					/*
+						if i == 1 && j == 1 {
+							fmt.Println(board[i][j].foodChemo)
+						}
+					*/
 				}
 			} else {
 				board[i][j].trailChemo *= factor
