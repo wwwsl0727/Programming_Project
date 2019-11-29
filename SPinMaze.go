@@ -83,28 +83,6 @@ func CheckIfIntializeRight(maze Maze) {
 		}
 
 	}
-	/*
-		fmt.Println("address of N1", maze[0])                            // &{[0xc000086180] 0 {0 0} N1}
-		fmt.Println("attributes of N1", *maze[0])                        //{[0xc000086180] 0 {0 0} N1}
-		fmt.Println("name of N1", (*maze[0]).name)                       //"N1"
-		fmt.Println(" address of neighbors of N1", (*maze[0]).neighbors) //[&N6] [0xc0000980f0]
-		address := (*maze[0]).neighbors[0]                               //&N6
-		fmt.Println("address of N6", address)                            //&N6
-		fmt.Println("name of N6", (*address).name)                       //"N6"
-
-		Check if the intialization is right
-		For each node
-		for i := range maze {
-			//address of neighbors of Ni
-			neighbors := (*maze[i]).neighbors
-			var neighbornames []string
-			for j := range neighbors {
-				neighbornames = append(neighbornames, (*neighbors[j]).name)
-			}
-			fmt.Println("location and neighbor names of each node", (*maze[i]).name, (*maze[i]).location, neighbornames)
-
-		}
-	*/
 }
 
 func InitializeTransportMaze() Maze {
