@@ -182,6 +182,8 @@ func main() {
 			}
 		}
 	}
+	imagefile := DrawGameBoards(boards, 5, CN)
+	ImagesToGIF(imagefile, "Multiagent_GIF")
 }
 
 //50% mold, two good foods, two bad foods with chemo 0.

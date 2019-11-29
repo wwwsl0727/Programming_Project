@@ -101,19 +101,19 @@ func DrawGameBoard(board multiAgentMatrix, cellWidth int, CN float64) image.Imag
 	return c.img
 }
 
-func DrawGridLines(pic Canvas, cellWidth int) {
-	w, h := pic.width, pic.height
-	// first, draw vertical lines
-	for i := 1; i < pic.width/cellWidth; i++ {
-		y := i * cellWidth
-		pic.MoveTo(0.0, float64(y))
-		pic.LineTo(float64(w), float64(y))
-	}
-	// next, draw horizontal lines
-	for j := 1; j < pic.height/cellWidth; j++ {
-		x := j * cellWidth
-		pic.MoveTo(float64(x), 0.0)
-		pic.LineTo(float64(x), float64(h))
-	}
-	pic.Stroke()
-}
+// func DrawGridLines(pic Canvas, cellWidth int) {
+// 	w, h := pic.width, pic.height
+// 	// first, draw vertical lines
+// 	for i := 1; i < pic.width/cellWidth; i++ {
+// 		y := i * cellWidth
+// 		pic.MoveTo(0.0, float64(y))
+// 		pic.LineTo(float64(w), float64(y))
+// 	}
+// 	// next, draw horizontal lines
+// 	for j := 1; j < pic.height/cellWidth; j++ {
+// 		x := j * cellWidth
+// 		pic.MoveTo(float64(x), 0.0)
+// 		pic.LineTo(float64(x), float64(h))
+// 	}
+// 	pic.Stroke()
+// }

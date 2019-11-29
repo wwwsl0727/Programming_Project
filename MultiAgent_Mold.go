@@ -182,7 +182,8 @@ func main() {
 			}
 		}
 	}
-	OutPNGPictures(boards, 5, CN) //Cell Width 5
+	imagefile := DrawGameBoards(boards, 5, CN)
+	ImagesToGIF(imagefile, "Multiagent_GIF")
 }
 
 //50% mold, two good foods, two bad foods with chemo 0.
