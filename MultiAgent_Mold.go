@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -22,6 +23,7 @@ type Agent struct {
 	sensorLength    int     // 7 in 50% agent case
 	sensorDiagonalL float64 // float64(5)*math.Sqrt(2) for sensor in diagnol of axix
 }
+
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
