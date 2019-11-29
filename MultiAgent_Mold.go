@@ -2,8 +2,11 @@
 package main
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -11,10 +14,11 @@ import (
 type multiAgentMatrix [][]box
 
 type box struct {
-	IsFood, IsAgent bool
-	foodChemo       float64
-	trailChemo      float64
-	agent           *Agent
+	IsFood, IsAgent, haslight bool
+	foodChemo                 float64
+	trailChemo                float64
+	light                     float64
+	agent                     *Agent
 }
 
 type Agent struct {
@@ -26,9 +30,16 @@ type Agent struct {
 
 
 func main() {
+
+	//command summary:
+	// ./multiAgent food
+	// ./multiAgent light int int
+	// ./multiAgent wind int
+	// ./multiAgent normal string
 	rand.Seed(time.Now().UnixNano())
 
-	//intialization for 50% case
+	//Below is initialization for 50% case, three food spots.
+	//Different intialization will change variables below accordingly.
 	row := 200
 	col := 200
 	sensorArmLength := 7
@@ -39,9 +50,11 @@ func main() {
 	// filter for trail 3x3
 	filterT := 3
 
-	WT := 0.4    //WT: The weight of trail value sensed by an agent’s sensor
-	WN := 1 - WT //WN: The weight of nutrient value sensed by an agent’s sensor
+	WL := 1.0    //WL: Weight of light value sensed by an agent’s sensor
+	WT := 0.4    //WT: Weight of trail value
+	WN := 1 - WT //WN: Weight of nutrient value
 	CN := 10.0   //The Chemo-Nutrient concentration of food
+	CL := 10.0   // Light concentration
 	dampN := 0.2 //Diffusion damping factor of chemo- nutrient
 	// filter for nutrient 5x5
 	filterN := 5
@@ -49,41 +62,51 @@ func main() {
 	RT := 15
 	ET := -10
 
-	//make the matrix which has 50% of its box has agent
-	matrix0 := make(multiAgentMatrix, row)
-	for i := range matrix0 {
-		//for all boxes, intial foodChemo & trailChemo are 0.
-		//IsFood, IsAgent are false
-		row := make([]box, col)
-		row = GenerateAgent(row, sensorArmLength, sensorDiagonalL, sensorAngle)
-		matrix0[i] = row
-	}
-
-	//The center is 10,100
-	for i := 9; i <= 11; i++ {
-		for j := 99; j <= 101; j++ {
-			matrix0[i][j].IsFood = true
-			matrix0[i][j].foodChemo = CN //10
-		}
-	}
-
-	//The center is 190,10
-	for i := 189; i <= 191; i++ {
-		for j := 9; j <= 11; j++ {
-			matrix0[i][j].IsFood = true
-			matrix0[i][j].foodChemo = CN //10
-		}
-	}
-
-	//The center is 190,190
-	for i := 189; i <= 191; i++ {
-		for j := 189; j <= 191; j++ {
-			matrix0[i][j].IsFood = true
-			matrix0[i][j].foodChemo = CN //10
-		}
-	}
-
 	numGens := 2
+
+	emptyboard := InitializeBoard(row, col)
+	matrix0 := InitializeBoard(row, col) // Used to pass to later simulation after initialization
+
+	//Different Initilization based on command line
+	condition := os.Args[1]
+	if condition == "food" { //50% mold, two good foods, two bad foods with chemo 0.
+		matrix0 = intializeFoodBoard(emptyboard, row, col, sensorArmLength, sensorDiagonalL, sensorAngle, CN)
+
+	} else if condition == "light" {
+		x, err2 := strconv.Atoi(os.Args[2]) // light center x index
+		if err2 != nil {
+			panic("Issue in read light x index")
+		}
+		y, err3 := strconv.Atoi(os.Args[3]) // light center y index
+		if err3 != nil {
+			panic("Issue in read light y index")
+		}
+		matrix0 = intializeLightBoard(emptyboard, row, col, sensorArmLength, x, y, sensorDiagonalL, sensorAngle, CN, CL)
+
+	} else if condition == "wind" {
+		windlevel, err2 := strconv.Atoi(os.Args[2]) // wind level is 0 ~ 10
+		if err2 != nil {
+			panic("Issue in read wind level")
+		}
+		RT += windlevel //originally 15, make it harder to reproduce
+		ET += windlevel //originally -10, make it easy to die
+
+	} else if condition == "normal" {
+		situation := os.Args[2]
+		if situation == "half" {
+			//half of the board has mold and three food spots as triangle
+			matrix0 = intializeHalfBoard(emptyboard, row, col, sensorArmLength, sensorDiagonalL, sensorAngle, CN)
+
+			// all molds start in a corner of board
+		} else if situation == "corner" {
+			//Need to adjust certain variable such as WT
+			matrix0 = intializeCornerBoard(emptyboard, row, col, sensorArmLength, sensorDiagonalL, sensorAngle, CN)
+			//******* need to change other factors
+		}
+	} else {
+		panic("wrong condition input!")
+	}
+	fmt.Println("All command line arguments read successfully.")
 
 	//Return boards to plot.
 	boards := make([]multiAgentMatrix, numGens+1)
@@ -104,7 +127,7 @@ func main() {
 		for r := range currBoard {
 			for c := range currBoard[0] {
 				//sense direction and change direction to the higher chemo direction.
-				agentDirection := currBoard.SynthesisComparator(r, c, WT, WN, sensorAngle)
+				agentDirection := currBoard.SynthesisComparator(r, c, WT, WN, WL, sensorAngle)
 
 				//direction 0,+- pi/2; +- pi; +- 3pi/2; +-2pi... / pi/4 = 0;2;4;6... a=L;else a=DiagonalL
 				flag := int(4 * agentDirection / math.Pi)
@@ -139,7 +162,7 @@ func main() {
 					var forwardAgent *Agent
 					forwardAgent.motionCounter = currCell.agent.motionCounter + 1
 					//rotate to the direction with the higher sense value
-					forwardAgent.direction = currBoard.SynthesisComparator(forwardx, forwardy, WT, WN, sensorAngle)
+					forwardAgent.direction = currBoard.SynthesisComparator(forwardx, forwardy, WT, WN, WL, sensorAngle)
 					forwardAgent.sensorDiagonalL = sensorDiagonalL
 					forwardAgent.sensorLength = sensorArmLength
 					forwardcell.agent = forwardAgent
@@ -161,6 +184,143 @@ func main() {
 			}
 		}
 	}
+}
+
+//50% mold, two good foods, two bad foods with chemo 0.
+func intializeFoodBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int, sensorDiagonalL, sensorAngle, CN float64) multiAgentMatrix {
+	for i := range matrix0 {
+		//for all boxes, intial foodChemo & trailChemo are 0.
+		//IsFood, IsAgent are false
+		row := make([]box, col)
+		row = GenerateAgent(row, sensorArmLength, sensorDiagonalL, sensorAngle)
+		matrix0[i] = row
+	}
+	//Bad food center is 50,50.
+	for i := 49; i <= 51; i++ {
+		for j := 49; j <= 51; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = 0.0 //Bad food
+		}
+	}
+
+	//Bad food center is 150,50.
+	for i := 149; i <= 151; i++ {
+		for j := 49; j <= 51; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = 0.0 //Bad food
+		}
+	}
+
+	//Good food center is 50,150.
+	for i := 49; i <= 51; i++ {
+		for j := 149; j <= 151; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //Good food
+		}
+	}
+
+	//Bad food center is 150,150.
+	for i := 149; i <= 151; i++ {
+		for j := 149; j <= 151; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //good food
+		}
+	}
+	return matrix0
+}
+
+//50% mold, three foods, light square depends on x and y
+func intializeLightBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength, x, y int, sensorDiagonalL, sensorAngle, CN, CL float64) multiAgentMatrix {
+	for i := range matrix0 {
+		//for all boxes, intial foodChemo & trailChemo are 0.
+		//IsFood, IsAgent are false
+		row := make([]box, col)
+		row = GenerateAgent(row, sensorArmLength, sensorDiagonalL, sensorAngle)
+		matrix0[i] = row
+	}
+
+	//The center is 10,100
+	for i := 9; i <= 11; i++ {
+		for j := 99; j <= 101; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //10
+		}
+	}
+
+	//The center is 190,10
+	for i := 189; i <= 191; i++ {
+		for j := 9; j <= 11; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //10
+		}
+	}
+
+	//The center is 190,190
+	for i := 189; i <= 191; i++ {
+		for j := 189; j <= 191; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //10
+		}
+	}
+
+	//Given the center of light, the boxes in light source has stronger light concentration
+	addlight(matrix0, x, y, CL)
+
+	return matrix0
+}
+
+//Add light concentration to a square of length 9
+func addlight(matrix0 multiAgentMatrix, x, y int, CL float64) {
+	for i := x - 4; i <= x+4; i++ {
+		for j := y - 4; i <= y+4; i++ {
+			if InField(200, 200, i, j) {
+				matrix0[i][j].haslight = true
+				matrix0[i][j].light = CL
+			}
+		}
+	}
+}
+
+func intializeHalfBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int, sensorDiagonalL, sensorAngle, CN float64) multiAgentMatrix {
+	//make the matrix which has 50% of its box has agent
+
+	for i := range matrix0 {
+		//for all boxes, intial foodChemo & trailChemo are 0.
+		//IsFood, IsAgent are false
+		row := make([]box, col)
+		row = GenerateAgent(row, sensorArmLength, sensorDiagonalL, sensorAngle)
+		matrix0[i] = row
+	}
+
+	//The center is 10,100
+	for i := 9; i <= 11; i++ {
+		for j := 99; j <= 101; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //10
+		}
+	}
+
+	//The center is 190,10
+	for i := 189; i <= 191; i++ {
+		for j := 9; j <= 11; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //10
+		}
+	}
+
+	//The center is 190,190
+	for i := 189; i <= 191; i++ {
+		for j := 189; j <= 191; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //10
+		}
+	}
+	return matrix0
+}
+
+////////////////////////// Shili's part
+func intializeCornerBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int, sensorDiagonalL, sensorAngle, CN float64) multiAgentMatrix {
+
 }
 
 func UpdateChemo(filter int, damp float64, board multiAgentMatrix, category string) multiAgentMatrix {
@@ -261,6 +421,7 @@ func (board multiAgentMatrix) Damp(damp float64, category string) {
 	}
 }
 
+//GenerateAgent Generate agent for a row. 50% of boxes have agent
 func GenerateAgent(row []box, sensorArmLength int, sensorDiagonalL, sensorAngle float64) []box {
 
 	for i := range row {
@@ -283,7 +444,7 @@ func GenerateAgent(row []box, sensorArmLength int, sensorDiagonalL, sensorAngle 
 }
 
 //Compare two sensors measure, change a agent's direction
-func (matrix multiAgentMatrix) SynthesisComparator(row, col int, WT, WN, sensorAngle float64) float64 {
+func (matrix multiAgentMatrix) SynthesisComparator(row, col int, WT, WN, WL, sensorAngle float64) float64 {
 	//exceptions
 	numRows := len(matrix)
 	numCols := len(matrix[0])
@@ -313,9 +474,9 @@ func (matrix multiAgentMatrix) SynthesisComparator(row, col int, WT, WN, sensorA
 	// If left sensor and right sensor are all in the matrix
 	if InField(numRows, numCols, leftx, lefty) && InField(numRows, numCols, rightx, righty) {
 		sensorLeft := matrix[leftx][lefty]
-		FL := calculateScore(sensorLeft, WT, WN)
+		FL := calculateScore(sensorLeft, WT, WN, WL)
 		sensorRight := matrix[rightx][righty]
-		FR := calculateScore(sensorRight, WT, WN)
+		FR := calculateScore(sensorRight, WT, WN, WL)
 		if FL < FR {
 			//rotate right
 			matrix[row][col].agent.direction += sensorAngle
@@ -346,7 +507,7 @@ func (matrix multiAgentMatrix) SynthesisComparator(row, col int, WT, WN, sensorA
 
 }
 
-//Calculate the location of left and right sensors.
+//CalculateSensorLocation Calculate the location of left and right sensors.
 func CalculateSensorLocation(agentDirection, sensorAngle, DiagonalL float64, row, col, L int) (int, int, int, int) {
 	//Initialize the location of left, forward and right sensors
 	var leftx int
@@ -379,8 +540,8 @@ func CalculateSensorLocation(agentDirection, sensorAngle, DiagonalL float64, row
 }
 
 //Calculate a box's score using SV = WT×TV +WN×NV
-func calculateScore(B box, WT, WN float64) float64 {
-	return WT*B.trailChemo + WN*B.foodChemo
+func calculateScore(B box, WT, WN, WL float64) float64 {
+	return WT*B.trailChemo + WN*B.foodChemo - WL*B.light
 }
 
 //InField takes a the numRows and numCols of a matrix and i/j indices.  It returns true if (i,j) is a valid entry
