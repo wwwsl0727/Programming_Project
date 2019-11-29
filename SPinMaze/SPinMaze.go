@@ -39,14 +39,14 @@ func main() {
 		lineWidth = 14.0
 	} else if mode == "transport" {
 		maze = InitializeTransportMaze()
-		lineWidth = 30.0
+		lineWidth = 9.0
 	}
 	CheckIfIntializeRight(maze)
-	numgen := 100
+	numgen := 30
 
 	nsteps := 10000 // This is for calculating conductivity
 
-	t := 1.0
+	t := 0.0001
 
 	rand.Seed(time.Now().UnixNano())
 	//MazeEvolve(maze, numgen, nsteps, t)
@@ -55,6 +55,7 @@ func main() {
 	imageList := DrawMazes(maze, Q, numgen, lineWidth)
 	ImagesToGIF(imageList, fileName)
 
+	fmt.Println("Drawing finishes.")
 }
 
 func CheckIfIntializeRight(maze Maze) {
@@ -141,9 +142,10 @@ func InitializeTransportMaze() Maze {
 	// N29.location.x, N29.location.y = 2500.0, 2400.0
 	// N30.location.x, N30.location.y = 2800.0, 2900.0
 	// N31.location.x, N31.location.y = 2400.0, 3000.0
-
-	N1.location.x, N1.location.y = 37.0, 13.5
-	N2.location.x, N2.location.y = 37.5, 14.0
+	//N1 becomes N27 lanzhou, N2 becomes N20 Hangzhou.
+	//
+	//N1.location.x, N1.location.y = 37.0, 13.5
+	//N2.location.x, N2.location.y = 37.5, 14.0
 	N3.location.x, N3.location.y = 42.0, 23.0
 	N4.location.x, N4.location.y = 27.5, 25.0
 	N5.location.x, N5.location.y = 32.0, 12.5
@@ -161,57 +163,88 @@ func InitializeTransportMaze() Maze {
 	N17.location.x, N17.location.y = 34.5, 19.5
 	N18.location.x, N18.location.y = 39.5, 22.0
 	N19.location.x, N19.location.y = 38.0, 22.5
-	N20.location.x, N20.location.y = 40.5, 24.0
+	//N20.location.x, N20.location.y = 40.5, 24.0
 	N21.location.x, N21.location.y = 40.0, 28.0
 	N22.location.x, N22.location.y = 37.5, 26.0
 	N23.location.x, N23.location.y = 34.0, 27.5
 	N24.location.x, N24.location.y = 35.0, 24.5
 	N25.location.x, N25.location.y = 34.5, 32.5
 	N26.location.x, N26.location.y = 31.5, 35.5
-	N27.location.x, N27.location.y = 25.0, 17.5
+	//N27.location.x, N27.location.y = 25.0, 17.5
 	N28.location.x, N28.location.y = 30.0, 20.0
 	N29.location.x, N29.location.y = 25.0, 24.0
 	N30.location.x, N30.location.y = 28.0, 29.0
 	N31.location.x, N31.location.y = 24.0, 30.0
 
-	N1.neighbors = append(N1.neighbors, &N2, &N5, &N12, &N13)
-	//N1.neighbors = append(N1.neighbors, &N5, &N12, &N13)
-	N2.neighbors = append(N2.neighbors, &N1, &N3, &N12, &N13, &N16, &N18)
+	N1.location.x, N1.location.y = 25.0, 17.5
+	N2.location.x, N2.location.y = 40.5, 24.0
+	N20.location.x, N20.location.y = 37.5, 14.0
+	N27.location.x, N27.location.y = 37.0, 13.5
+
+	//N1.neighbors = append(N1.neighbors, &N2, &N5, &N12, &N13)
+	//N2.neighbors = append(N2.neighbors, &N1, &N3, &N12, &N13, &N16, &N18)
 	N3.neighbors = append(N3.neighbors, &N2, &N16, &N18, &N20, &N21)
-	N4.neighbors = append(N4.neighbors, &N14, &N16, &N17, &N19, &N20, &N22, &N23, &N24, &N27, &N28, &N29, &N30)
-	N5.neighbors = append(N5.neighbors, &N1, &N8, &N14, &N28)
-	N6.neighbors = append(N6.neighbors, &N7, &N8, &N14, &N15, &N27)
+	//N4.neighbors = append(N4.neighbors, &N14, &N16, &N17, &N19, &N20, &N22, &N23, &N24, &N27, &N28, &N29, &N30)
+	//N4.neighbors = append(N4.neighbors, &N14, &N16, &N17, &N19, &N2, &N22, &N23, &N24, &N27, &N28, &N29, &N30)
+	N4.neighbors = append(N4.neighbors, &N14, &N16, &N17, &N19, &N2, &N22, &N23, &N24, &N1, &N28, &N29, &N30)
+	//N5.neighbors = append(N5.neighbors, &N1, &N8, &N14, &N28)
+	N5.neighbors = append(N5.neighbors, &N27, &N8, &N14, &N28)
+	//N6.neighbors = append(N6.neighbors, &N7, &N8, &N14, &N15, &N27)
+	N6.neighbors = append(N6.neighbors, &N7, &N8, &N14, &N15, &N1)
 	N7.neighbors = append(N7.neighbors, &N6, &N15, &N29, &N31)
-	N8.neighbors = append(N8.neighbors, &N5, &N6, &N14, &N27, &N28)
-	N9.neighbors = append(N9.neighbors, &N20, &N22, &N23, &N24, &N25, &N26, &N30, &N31)
+	//N8.neighbors = append(N8.neighbors, &N5, &N6, &N14, &N27, &N28)
+	N8.neighbors = append(N8.neighbors, &N5, &N6, &N14, &N1, &N28)
+	//N9.neighbors = append(N9.neighbors, &N20, &N22, &N23, &N24, &N25, &N26, &N30, &N31)
+	N9.neighbors = append(N9.neighbors, &N2, &N22, &N23, &N24, &N25, &N26, &N30, &N31)
 	N10.neighbors = append(N10.neighbors, &N11)
 	N11.neighbors = append(N11.neighbors, &N10, &N12)
-	N12.neighbors = append(N12.neighbors, &N1, &N2, &N11, &N16, &N18)
-	N13.neighbors = append(N13.neighbors, &N1, &N2, &N14, &N16, &N17, &N19)
-	N14.neighbors = append(N14.neighbors, &N4, &N5, &N6, &N8, &N13, &N17, &N23, &N27, &N28)
-	N15.neighbors = append(N15.neighbors, &N6, &N7, &N27)
-	N16.neighbors = append(N16.neighbors, &N2, &N3, &N4, &N12, &N13, &N17, &N18, &N19, &N24)
+	//N12.neighbors = append(N12.neighbors, &N1, &N2, &N11, &N16, &N18)
+	N12.neighbors = append(N12.neighbors, &N27, &N20, &N11, &N16, &N18)
+	//N13.neighbors = append(N13.neighbors, &N1, &N2, &N14, &N16, &N17, &N19)
+	N13.neighbors = append(N13.neighbors, &N27, &N20, &N14, &N16, &N17, &N19)
+	// N14.neighbors = append(N14.neighbors, &N4, &N5, &N6, &N8, &N13, &N17, &N23, &N27, &N28)
+	// N15.neighbors = append(N15.neighbors, &N6, &N7, &N27)
+	N14.neighbors = append(N14.neighbors, &N4, &N5, &N6, &N8, &N13, &N17, &N23, &N1, &N28)
+	N15.neighbors = append(N15.neighbors, &N6, &N7, &N1)
+	//N16.neighbors = append(N16.neighbors, &N2, &N3, &N4, &N12, &N13, &N17, &N18, &N19, &N24)
+	N16.neighbors = append(N16.neighbors, &N20, &N3, &N4, &N12, &N13, &N17, &N18, &N19, &N24)
 	N17.neighbors = append(N17.neighbors, &N4, &N13, &N14, &N16, &N18, &N19, &N22, &N23, &N24, &N28)
 	N18.neighbors = append(N18.neighbors, &N2, &N3, &N12, &N16, &N17, &N19, &N20)
 	N19.neighbors = append(N19.neighbors, &N4, &N13, &N16, &N17, &N18, &N21, &N22, &N24, &N28)
-	N20.neighbors = append(N20.neighbors, &N3, &N4, &N9, &N18, &N21, &N22, &N23, &N24, &N25, &N30)
-	N21.neighbors = append(N21.neighbors, &N3, &N19, &N20, &N22, &N23, &N24, &N25, &N30)
-	N22.neighbors = append(N22.neighbors, &N4, &N9, &N17, &N19, &N20, &N21, &N23, &N24, &N25, &N28, &N30)
-	N23.neighbors = append(N23.neighbors, &N4, &N9, &N14, &N17, &N20, &N21, &N22, &N24, &N25, &N28, &N30)
-	N24.neighbors = append(N24.neighbors, &N4, &N9, &N16, &N17, &N19, &N20, &N21, &N22, &N23, &N25, &N28, &N29, &N30)
-	N25.neighbors = append(N25.neighbors, &N9, &N20, &N21, &N22, &N23, &N24, &N26, &N30)
+	//N20.neighbors = append(N20.neighbors, &N3, &N4, &N9, &N18, &N21, &N22, &N23, &N24, &N25, &N30)
+	//N21.neighbors = append(N21.neighbors, &N3, &N19, &N20, &N22, &N23, &N24, &N25, &N30)
+	N21.neighbors = append(N21.neighbors, &N3, &N19, &N2, &N22, &N23, &N24, &N25, &N30)
+	// N22.neighbors = append(N22.neighbors, &N4, &N9, &N17, &N19, &N20, &N21, &N23, &N24, &N25, &N28, &N30)
+	// N23.neighbors = append(N23.neighbors, &N4, &N9, &N14, &N17, &N20, &N21, &N22, &N24, &N25, &N28, &N30)
+	N22.neighbors = append(N22.neighbors, &N4, &N9, &N17, &N19, &N2, &N21, &N23, &N24, &N25, &N28, &N30)
+	N23.neighbors = append(N23.neighbors, &N4, &N9, &N14, &N17, &N2, &N21, &N22, &N24, &N25, &N28, &N30)
+	// N24.neighbors = append(N24.neighbors, &N4, &N9, &N16, &N17, &N19, &N20, &N21, &N22, &N23, &N25, &N28, &N29, &N30)
+	// N25.neighbors = append(N25.neighbors, &N9, &N20, &N21, &N22, &N23, &N24, &N26, &N30)
+	N24.neighbors = append(N24.neighbors, &N4, &N9, &N16, &N17, &N19, &N2, &N21, &N22, &N23, &N25, &N28, &N29, &N30)
+	N25.neighbors = append(N25.neighbors, &N9, &N2, &N21, &N22, &N23, &N24, &N26, &N30)
 	N26.neighbors = append(N26.neighbors, &N9, &N25)
-	N27.neighbors = append(N27.neighbors, &N4, &N6, &N8, &N14, &N15, &N28, &N29)
-	N28.neighbors = append(N28.neighbors, &N4, &N5, &N8, &N14, &N17, &N19, &N22, &N23, &N24, &N27, &N29, &N31)
-	N29.neighbors = append(N29.neighbors, &N4, &N7, &N24, &N27, &N28, &N31)
-	N30.neighbors = append(N30.neighbors, &N4, &N9, &N20, &N21, &N22, &N23, &N24, &N25, &N31)
+	//N27.neighbors = append(N27.neighbors, &N4, &N6, &N8, &N14, &N15, &N28, &N29)
+	//N28.neighbors = append(N28.neighbors, &N4, &N5, &N8, &N14, &N17, &N19, &N22, &N23, &N24, &N27, &N29, &N31)
+	N28.neighbors = append(N28.neighbors, &N4, &N5, &N8, &N14, &N17, &N19, &N22, &N23, &N24, &N1, &N29, &N31)
+	// N29.neighbors = append(N29.neighbors, &N4, &N7, &N24, &N27, &N28, &N31)
+	N29.neighbors = append(N29.neighbors, &N4, &N7, &N24, &N1, &N28, &N31)
+	// N30.neighbors = append(N30.neighbors, &N4, &N9, &N20, &N21, &N22, &N23, &N24, &N25, &N31)
+	N30.neighbors = append(N30.neighbors, &N4, &N9, &N2, &N21, &N22, &N23, &N24, &N25, &N31)
 	N31.neighbors = append(N31.neighbors, &N7, &N9, &N28, &N29, &N30)
 
-	N1.city, N2.city, N3.city, N4.city, N5.city, N6.city = "Beijing", "Tianjin", "Shanghai", "Chongqing", "Huhhot", "Umumqi"
+	N1.neighbors = append(N1.neighbors, &N4, &N6, &N8, &N14, &N15, &N28, &N29)
+	N2.neighbors = append(N2.neighbors, &N3, &N4, &N9, &N18, &N21, &N22, &N23, &N24, &N25, &N30)
+	N20.neighbors = append(N20.neighbors, &N27, &N3, &N12, &N13, &N16, &N18)
+	N27.neighbors = append(N27.neighbors, &N20, &N5, &N12, &N13)
+
+	// N1.city, N2.city, N3.city, N4.city, N5.city, N6.city = "Beijing", "Tianjin", "Shanghai", "Chongqing", "Huhhot", "Umumqi"
+	N1.city, N2.city, N3.city, N4.city, N5.city, N6.city = "Lanzhou", "Hangzhou", "Shanghai", "Chongqing", "Huhhot", "Umumqi"
 	N7.city, N8.city, N9.city, N10.city, N11.city, N12.city = "Lhasa", "Yinchuan", "Nannin", "Harbin", "Changchun", "Shenyang"
 	N13.city, N14.city, N15.city, N16.city, N17.city, N18.city, N19.city = "Shijiazhuang", "Taiyuan", "Xining", "Jinan", "Zhengzhou", "Nanjing", "Hefei"
-	N20.city, N21.city, N22.city, N23.city, N24.city, N25.city, N26.city = "Hangzhou", "Fuzhou", "Nanchang", "Changsha", "Wuhan", "Guangzhou", "Haikou"
-	N27.city, N28.city, N29.city, N30.city, N31.city = "Lanzhou", "Sian", "Chengdu", "Guiyang", "Kunming"
+	// N20.city, N21.city, N22.city, N23.city, N24.city, N25.city, N26.city = "Hangzhou", "Fuzhou", "Nanchang", "Changsha", "Wuhan", "Guangzhou", "Haikou"
+	// N27.city, N28.city, N29.city, N30.city, N31.city = "Lanzhou", "Sian", "Chengdu", "Guiyang", "Kunming"
+	N20.city, N21.city, N22.city, N23.city, N24.city, N25.city, N26.city = "Tianjin", "Fuzhou", "Nanchang", "Changsha", "Wuhan", "Guangzhou", "Haikou"
+	N27.city, N28.city, N29.city, N30.city, N31.city = "Beijing", "Sian", "Chengdu", "Guiyang", "Kunming"
 
 	N1.name, N2.name, N3.name, N4.name, N5.name, N6.name = "N1", "N2", "N3", "N4", "N5", "N6"
 	N7.name, N8.name, N9.name, N10.name, N11.name, N12.name = "N7", "N8", "N9", "N10", "N11", "N12"

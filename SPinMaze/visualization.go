@@ -148,7 +148,7 @@ func DrawMaze(maze Maze, currFlow Matrix, previousFlow Matrix, numGen int, lineW
 	height := int(1.5 * maximumY)
 	nodeW := 20.0
 	nodeH := 20.0
-	r := 10.0
+	r := 15.0
 	m := CreateNewMazes(width, height)
 
 	for _, node := range maze {
