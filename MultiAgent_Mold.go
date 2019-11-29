@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -27,7 +26,6 @@ type Agent struct {
 	sensorLength    int     // 7 in 50% agent case
 	sensorDiagonalL float64 // float64(5)*math.Sqrt(2) for sensor in diagnol of axix
 }
-
 
 func main() {
 
@@ -184,6 +182,7 @@ func main() {
 			}
 		}
 	}
+	OutPNGPictures(boards, 5, CN) //Cell Width 5
 }
 
 //50% mold, two good foods, two bad foods with chemo 0.
@@ -320,7 +319,19 @@ func intializeHalfBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int,
 
 ////////////////////////// Shili's part
 func intializeCornerBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int, sensorDiagonalL, sensorAngle, CN float64) multiAgentMatrix {
-
+	//put 9 agents in the southern part
+	for i := 149; i <= 151; i++ {
+		for j := 149; j <= 151; j++ {
+			matrix0[i][j].IsAgent = true
+			var agent Agent
+			agent.direction = float64(rand.Intn(8)+1) * sensorAngle
+			agent.motionCounter = 0
+			agent.sensorDiagonalL = sensorDiagonalL
+			agent.sensorLength = sensorArmLength
+			matrix0[i][j].agent = &agent
+		}
+	}
+	return matrix0
 }
 
 func UpdateChemo(filter int, damp float64, board multiAgentMatrix, category string) multiAgentMatrix {
