@@ -17,7 +17,7 @@ type box struct {
 	foodChemo                 float64
 	trailChemo                float64
 	light                     float64
-	agent                     *Agent
+	agent                     Agent
 }
 
 type Agent struct {
@@ -60,7 +60,7 @@ func main() {
 	RT := 15
 	ET := -10
 
-	numGens := 2
+	numGens := 20000
 
 	emptyboard := InitializeBoard(row, col)
 	matrix0 := InitializeBoard(row, col) // Used to pass to later simulation after initialization
@@ -115,7 +115,9 @@ func main() {
 
 	//start simulation
 	for n := 0; n <= numGens-1; n++ {
-		currBoard := boards[n+1]
+
+		currBoard := CopyBoard(boards[n])
+
 		//For boundary,both the foodChemo and the trailChemo is 0.
 		currBoard = UpdateChemo(filterN, dampN, boards[n], "food")
 		//fmt.Println(currBoard)
@@ -125,64 +127,76 @@ func main() {
 		for r := range currBoard {
 			for c := range currBoard[0] {
 				//sense direction and change direction to the higher chemo direction.
-				agentDirection := currBoard.SynthesisComparator(r, c, WT, WN, WL, sensorAngle)
+				if currBoard[r][c].IsAgent {
+					agentDirection := currBoard.SynthesisComparator(r, c, WT, WN, WL, sensorAngle)
 
-				//direction 0,+- pi/2; +- pi; +- 3pi/2; +-2pi... / pi/4 = 0;2;4;6... a=L;else a=DiagonalL
-				flag := int(4 * agentDirection / math.Pi)
-				var forwardx int
-				var forwardy int
+					//direction 0,+- pi/2; +- pi; +- 3pi/2; +-2pi... / pi/4 = 0;2;4;6... a=L;else a=DiagonalL
+					flag := int(4 * agentDirection / math.Pi)
+					var forwardx int
+					var forwardy int
 
-				var a float64
-				if flag%2 == 0 {
-					a = float64(sensorArmLength)
-				} else {
-					a = sensorDiagonalL
-				}
-
-				forwardx = r + int(a*math.Cos(agentDirection))
-				forwardy = c + int(a*math.Sin(agentDirection))
-
-				currCell := currBoard[r][c]
-				forwardcell := currBoard[forwardx][forwardy]
-				//If the forward direction is occupied, change direction randomly and motionCounter--
-				if forwardcell.IsAgent == true {
-					currCell.agent.direction = float64(rand.Intn(8)+1) * sensorAngle
-					currCell.agent.motionCounter--
-					if currCell.agent.motionCounter < ET {
-						//currentCell die
-						currCell.IsAgent = false
-						currCell.agent = nil
-					}
-				} else {
-					//If the forward direction is not occupied, move to that direction and leave trail in the new cell
-					forwardcell.IsAgent = true
-					forwardcell.trailChemo += depT
-					var forwardAgent *Agent
-					forwardAgent.motionCounter = currCell.agent.motionCounter + 1
-					//rotate to the direction with the higher sense value
-					forwardAgent.direction = currBoard.SynthesisComparator(forwardx, forwardy, WT, WN, WL, sensorAngle)
-					forwardAgent.sensorDiagonalL = sensorDiagonalL
-					forwardAgent.sensorLength = sensorArmLength
-					forwardcell.agent = forwardAgent
-
-					//Check motionCounter>RT
-					if forwardcell.agent.motionCounter > RT {
-						//a new cell born in the father cell
-						currCell.agent.direction = float64(rand.Intn(8)+1) * sensorAngle
-						currCell.agent.motionCounter = 0
-						currCell.agent.sensorDiagonalL = sensorDiagonalL
-						currCell.agent.sensorLength = sensorArmLength
+					var a float64
+					if flag%2 == 0 {
+						a = float64(sensorArmLength)
 					} else {
-						//there is no new cell in the father cell.
-						currCell.IsAgent = false
-						currCell.agent = nil
+						a = sensorDiagonalL
 					}
 
+					forwardx = r + int(a*math.Cos(agentDirection))
+					forwardy = c + int(a*math.Sin(agentDirection))
+
+					currCell := &currBoard[r][c]
+					forwardcell := &currBoard[forwardx][forwardy]
+					//If the forward direction is occupied, change direction randomly and motionCounter--
+					if forwardcell.IsAgent == true {
+						currCell.agent.direction = float64(rand.Intn(8)+1) * sensorAngle
+						currCell.agent.motionCounter--
+						if currCell.agent.motionCounter < ET {
+							//currentCell die
+							currCell.IsAgent = false
+							// currCell.agent = nil
+						}
+					} else {
+						//If the forward direction is not occupied, move to that direction and leave trail in the new cell
+						forwardcell.IsAgent = true
+						forwardcell.trailChemo += depT
+						var forwardAgent Agent
+						forwardAgent.motionCounter = currCell.agent.motionCounter + 1
+						//rotate to the direction with the higher sense value
+						forwardAgent.direction = currBoard.SynthesisComparator(forwardx, forwardy, WT, WN, WL, sensorAngle)
+						forwardAgent.sensorDiagonalL = sensorDiagonalL
+						forwardAgent.sensorLength = sensorArmLength
+						forwardcell.agent = forwardAgent
+
+						//Check motionCounter>RT
+						if forwardcell.agent.motionCounter > RT {
+							//a new cell born in the father cell
+							currCell.agent.direction = float64(rand.Intn(8)+1) * sensorAngle
+							currCell.agent.motionCounter = 0
+							currCell.agent.sensorDiagonalL = sensorDiagonalL
+							currCell.agent.sensorLength = sensorArmLength
+						} else {
+							//there is no new cell in the father cell.
+							(*currCell).IsAgent = false
+							// (*currCell).agent = nil
+						}
+
+					}
 				}
+
 			}
+
 		}
+		boards[n+1] = currBoard
+
 	}
-	imagefile := DrawGameBoards(boards, 5, CN)
+	// for i := 9; i <= 11; i++ {
+	// 	for j := 99; j <= 101; j++ {
+	// 		fmt.Println(boards[0][i][j].IsFood)
+	// 	}
+	// }
+	//fmt.Println(boards[1])
+	imagefile := DrawGameBoards(boards, 1, CN)
 	ImagesToGIF(imagefile, "Multiagent_GIF")
 }
 
@@ -293,16 +307,40 @@ func intializeHalfBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int,
 	}
 
 	//The center is 10,100
-	for i := 9; i <= 11; i++ {
-		for j := 99; j <= 101; j++ {
+	// for i := 9; i <= 11; i++ {
+	// 	for j := 99; j <= 101; j++ {
+	// 		matrix0[i][j].IsFood = true
+	// 		matrix0[i][j].foodChemo = CN //10
+	// 	}
+	// }
+	//
+	// //The center is 190,10
+	// for i := 189; i <= 191; i++ {
+	// 	for j := 9; j <= 11; j++ {
+	// 		matrix0[i][j].IsFood = true
+	// 		matrix0[i][j].foodChemo = CN //10
+	// 	}
+	// }
+	//
+	// //The center is 190,190
+	// for i := 189; i <= 191; i++ {
+	// 	for j := 189; j <= 191; j++ {
+	// 		matrix0[i][j].IsFood = true
+	// 		matrix0[i][j].foodChemo = CN //10
+	// 	}
+	// }
+
+	//The center is 10,100
+	for i := 99; i <= 101; i++ {
+		for j := 9; j <= 11; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
 
 	//The center is 190,10
-	for i := 189; i <= 191; i++ {
-		for j := 9; j <= 11; j++ {
+	for i := 9; i <= 11; i++ {
+		for j := 189; j <= 191; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
@@ -329,7 +367,7 @@ func intializeCornerBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength in
 			agent.motionCounter = 0
 			agent.sensorDiagonalL = sensorDiagonalL
 			agent.sensorLength = sensorArmLength
-			matrix0[i][j].agent = &agent
+			matrix0[i][j].agent = agent
 		}
 	}
 	return matrix0
@@ -401,6 +439,7 @@ func (board multiAgentMatrix) AverageNeighbor(boardCopy multiAgentMatrix, r, c, 
 		*/
 	}
 }
+
 func (board multiAgentMatrix) Damp(damp float64, category string) {
 	factor := 1.0 - damp
 	for i := range board {
@@ -448,7 +487,7 @@ func GenerateAgent(row []box, sensorArmLength int, sensorDiagonalL, sensorAngle 
 			oneAgent.direction = randomDirection
 			oneAgent.sensorLength = sensorArmLength
 			oneAgent.sensorDiagonalL = sensorDiagonalL
-			row[i].agent = &oneAgent
+			row[i].agent = oneAgent
 		}
 		// if n == 1, no agent
 	}
