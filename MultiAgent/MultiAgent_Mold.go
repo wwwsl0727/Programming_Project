@@ -60,7 +60,7 @@ func main() {
 	RT := 15
 	ET := -10
 
-	numGens := 10000
+	numGens := 1000
 
 	emptyboard := InitializeBoard(row, col)
 	matrix0 := InitializeBoard(row, col) // Used to pass to later simulation after initialization
@@ -88,6 +88,7 @@ func main() {
 		}
 		RT += windlevel //originally 15, make it harder to reproduce
 		ET += windlevel //originally -10, make it easy to die
+		matrix0 = intializeHalfBoard(emptyboard, row, col, sensorArmLength, sensorDiagonalL, sensorAngle, CN)
 
 	} else if condition == "normal" {
 		situation := os.Args[2]
@@ -103,7 +104,7 @@ func main() {
 			WN = 0.8
 			WT = 0.2
 			matrix0 = intializeCornerBoard(emptyboard, row, col, sensorArmLength, sensorDiagonalL, sensorAngle, CN)
-			//******* need to change other factors
+
 		}
 	} else {
 		panic("wrong condition input!")
@@ -200,15 +201,15 @@ func main() {
 	// }
 	//fmt.Println(boards[1])
 
-	// quickboards := make([]multiAgentMatrix, 0)
-	// for i := 0; i < len(boards); i += 100 {
-	// 	quickboards = append(quickboards, boards[i])
-	// 	fmt.Println(len(quickboards))
-	// }
-	// fmt.Println(len(quickboards))
-	//
-	// imagefile := DrawGameBoards(quickboards, 1, CN)
-	// ImagesToGIF(imagefile, "Multiagent_GIF")
+	quickboards := make([]multiAgentMatrix, 0)
+	for i := 0; i < len(boards); i += 100 {
+		quickboards = append(quickboards, boards[i])
+		fmt.Println(len(quickboards))
+	}
+	fmt.Println(len(quickboards))
+
+	imagefile := DrawGameBoards(quickboards, 1, CN)
+	ImagesToGIF(imagefile, "Multiagent_GIF")
 }
 
 //50% mold, two good foods, two bad foods with chemo 0.
@@ -221,36 +222,36 @@ func intializeFoodBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int,
 		matrix0[i] = row
 	}
 	//Bad food center is 50,50.
-	for i := 49; i <= 51; i++ {
-		for j := 49; j <= 51; j++ {
-			matrix0[i][j].IsFood = true
-			matrix0[i][j].foodChemo = 0.0 //Bad food
-		}
-	}
-
-	//Bad food center is 150,50.
-	for i := 149; i <= 151; i++ {
-		for j := 49; j <= 51; j++ {
-			matrix0[i][j].IsFood = true
-			matrix0[i][j].foodChemo = 0.0 //Bad food
-		}
-	}
-
-	//Good food center is 50,150.
-	for i := 49; i <= 51; i++ {
-		for j := 149; j <= 151; j++ {
-			matrix0[i][j].IsFood = true
-			matrix0[i][j].foodChemo = CN //Good food
-		}
-	}
-
-	//Bad food center is 150,150.
-	for i := 149; i <= 151; i++ {
-		for j := 149; j <= 151; j++ {
-			matrix0[i][j].IsFood = true
-			matrix0[i][j].foodChemo = CN //good food
-		}
-	}
+	// for i := 49; i <= 51; i++ {
+	// 	for j := 49; j <= 51; j++ {
+	// 		matrix0[i][j].IsFood = true
+	// 		matrix0[i][j].foodChemo = 0.0 //Bad food
+	// 	}
+	// }
+	//
+	// //Bad food center is 150,50.
+	// for i := 149; i <= 151; i++ {
+	// 	for j := 49; j <= 51; j++ {
+	// 		matrix0[i][j].IsFood = true
+	// 		matrix0[i][j].foodChemo = 0.0 //Bad food
+	// 	}
+	// }
+	//
+	// //Good food center is 50,150.
+	// for i := 49; i <= 51; i++ {
+	// 	for j := 149; j <= 151; j++ {
+	// 		matrix0[i][j].IsFood = true
+	// 		matrix0[i][j].foodChemo = CN //Good food
+	// 	}
+	// }
+	//
+	// //Bad food center is 150,150.
+	// for i := 149; i <= 151; i++ {
+	// 	for j := 149; j <= 151; j++ {
+	// 		matrix0[i][j].IsFood = true
+	// 		matrix0[i][j].foodChemo = CN //good food
+	// 	}
+	// }
 	return matrix0
 }
 
@@ -264,25 +265,33 @@ func intializeLightBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength, x,
 		matrix0[i] = row
 	}
 
-	//The center is 10,100
-	for i := 9; i <= 11; i++ {
+	//The center is 100,50
+	for i := 99; i <= 101; i++ {
+		for j := 49; j <= 51; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //10
+		}
+	}
+
+	//The center is 40,150
+	for i := 39; i <= 41; i++ {
+		for j := 149; j <= 151; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //10
+		}
+	}
+
+	//The center is 160,150
+	for i := 159; i <= 161; i++ {
+		for j := 149; j <= 151; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //10
+		}
+	}
+
+	//food in light
+	for i := 99; i <= 101; i++ {
 		for j := 99; j <= 101; j++ {
-			matrix0[i][j].IsFood = true
-			matrix0[i][j].foodChemo = CN //10
-		}
-	}
-
-	//The center is 190,10
-	for i := 189; i <= 191; i++ {
-		for j := 9; j <= 11; j++ {
-			matrix0[i][j].IsFood = true
-			matrix0[i][j].foodChemo = CN //10
-		}
-	}
-
-	//The center is 190,190
-	for i := 189; i <= 191; i++ {
-		for j := 189; j <= 191; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
@@ -296,8 +305,8 @@ func intializeLightBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength, x,
 
 //Add light concentration to a square of length 9
 func addlight(matrix0 multiAgentMatrix, x, y int, CL float64) {
-	for i := x - 4; i <= x+4; i++ {
-		for j := y - 4; i <= y+4; i++ {
+	for i := x - 5; i < x+5; i++ {
+		for j := y - 5; j < y+5; j++ {
 			if InField(200, 200, i, j) {
 				matrix0[i][j].haslight = true
 				matrix0[i][j].light = CL
@@ -317,25 +326,25 @@ func intializeHalfBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int,
 		matrix0[i] = row
 	}
 
-	//The center is 10,100
+	//The center is 100,50
 	for i := 99; i <= 101; i++ {
-		for j := 9; j <= 11; j++ {
+		for j := 49; j <= 51; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
 
-	//The center is 190,10
-	for i := 9; i <= 11; i++ {
-		for j := 189; j <= 191; j++ {
+	//The center is 40,150
+	for i := 39; i <= 41; i++ {
+		for j := 149; j <= 151; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
 
-	//The center is 190,190
-	for i := 189; i <= 191; i++ {
-		for j := 189; j <= 191; j++ {
+	//The center is 160,150
+	for i := 159; i <= 161; i++ {
+		for j := 149; j <= 151; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
@@ -402,7 +411,7 @@ func intializeCornerBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength in
 	}
 
 	//put 9 agents in the southern part,100,190
-	for i := 9; i <= 11; i++ {
+	for i := 99; i <= 101; i++ {
 		for j := 189; j <= 191; j++ {
 			matrix0[i][j].IsAgent = true
 			var agent Agent
@@ -665,6 +674,8 @@ func CopyBoard(board multiAgentMatrix) multiAgentMatrix {
 		for j := range board[0] {
 			board1[i][j].IsAgent = board[i][j].IsAgent
 			board1[i][j].IsFood = board[i][j].IsFood
+			board1[i][j].light = board[i][j].light
+			board1[i][j].haslight = board[i][j].haslight
 			board1[i][j].foodChemo = board[i][j].foodChemo
 			board1[i][j].trailChemo = board[i][j].trailChemo
 			board1[i][j].agent = board[i][j].agent
