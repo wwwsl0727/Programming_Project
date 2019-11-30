@@ -108,11 +108,7 @@ func DrawMazes(maze Maze, flow []Matrix, numGen int, lineWidth float64) []image.
 	imageList := make([]image.Image, numGen)
 	maze = MazeScaling(maze, 30)
 	for i := 0; i < numGen; i++ {
-		if i == 0 {
-			imageList[i] = DrawMaze(maze, flow[0], flow[0], i, lineWidth)
-		} else {
-			imageList[i] = DrawMaze(maze, flow[i], flow[i-1], i, lineWidth)
-		}
+		imageList[i] = DrawMaze(maze, flow[i], i, lineWidth)
 	}
 	return imageList
 }
@@ -126,8 +122,8 @@ func IsNeighbor(maze Maze, a, b int) bool {
 	return false
 }
 
-func DrawMaze(maze Maze, currFlow Matrix, previousFlow Matrix, numGen int, lineWidth float64) image.Image {
-	yellow := MakeColor(255, 255, 0)
+func DrawMaze(maze Maze, currFlow Matrix, numGen int, lineWidth float64) image.Image {
+	// yellow := MakeColor(255, 255, 0)
 	red := MakeColor(255, 0, 0)
 	blue := MakeColor(0, 0, 255)
 	cyan := MakeColor(0, 255, 255)
@@ -183,35 +179,37 @@ func DrawMaze(maze Maze, currFlow Matrix, previousFlow Matrix, numGen int, lineW
 	for i := 0; i < len(currFlow); i++ {
 		for j := i; j < len(currFlow[i]); j++ {
 
-			if math.Abs(currFlow[i][j]) >= 0.0 {
-				if math.Abs(currFlow[i][j]) >= math.Abs(previousFlow[i][j]) && currFlow[i][j] != 0 {
-					if IsNeighbor(maze, i, j) {
-						m.DrawLine(maze[i].location, maze[j].location, yellow, pathWidth)
-					}
+			if math.Abs(math.Abs(currFlow[i][j])-1.0) < 0.6 {
+				if IsNeighbor(maze, i, j) {
+					m.DrawLine(maze[i].location, maze[j].location, red, pathWidth)
 				}
-				if math.Abs(currFlow[i][j]) < math.Abs(previousFlow[i][j]) && currFlow[i][j] != 0 {
-					color := MakeColor(150, 200, 0)
-
-					if math.Abs(math.Abs(currFlow[i][j]-1)-math.Abs(previousFlow[i][j]-1)) < 0.00000001 {
-
-						if IsNeighbor(maze, i, j) {
-							m.DrawLine(maze[i].location, maze[j].location, yellow, pathWidth)
-
-						}
-					} else {
-						if IsNeighbor(maze, i, j) {
-							m.DrawLine(maze[i].location, maze[j].location, color, pathWidth)
-						}
-					}
-
+			} else if math.Abs(currFlow[i][j]) < 1.0 {
+				color := MakeColor(150, 200, 0)
+				if IsNeighbor(maze, i, j) {
+					m.DrawLine(maze[i].location, maze[j].location, color, pathWidth)
 				}
-				if currFlow[i][j] == 0 {
 
-					if IsNeighbor(maze, i, j) {
-						m.DrawLine(maze[i].location, maze[j].location, black, pathWidth)
-					}
+			} else if math.Abs(currFlow[i][j]) < 0.0000001 {
+				if IsNeighbor(maze, i, j) {
+					m.DrawLine(maze[i].location, maze[j].location, black, pathWidth)
 				}
 			}
+
+		}
+	}
+	for i := range maze {
+		if maze[i].name == "N1" {
+			m.SetFillColor(red)
+			m.Circle(maze[i].location.x, maze[i].location.y, r)
+			m.Fill()
+		} else if maze[i].name == "N2" {
+			m.SetFillColor(blue)
+			m.Circle(maze[i].location.x, maze[i].location.y, r)
+			m.Fill()
+		} else {
+			m.SetFillColor(cyan)
+			m.Rectangle(maze[i].location.x, maze[i].location.y, nodeW, nodeH)
+			m.Fill()
 		}
 	}
 
