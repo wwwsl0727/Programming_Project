@@ -1,5 +1,9 @@
 package main
 
+import (
+	"testing"
+)
+
 /*
 func TestGenerateAgent(t *testing.T) {
 	k := 10000
@@ -44,7 +48,7 @@ func TestInitializeBoard(t *testing.T) {
 	}
 }
 */
-/*
+
 func TestAverageNeighbor(t *testing.T) {
 	// filter for nutrient 5x5
 	filterN := 5
@@ -108,7 +112,6 @@ func TestAverageNeighbor(t *testing.T) {
 		t.Errorf("Expected trailChemo at board 1 3 is %f but received %f", currBoard2Expected[1][3].trailChemo, currBoard2[1][3].trailChemo)
 	}
 }
-*/
 
 /*
 func TestAverageFilter(t *testing.T) {
