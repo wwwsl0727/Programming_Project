@@ -53,10 +53,11 @@ func DrawGameBoard(board multiAgentMatrix, cellWidth int, CN float64) image.Imag
 	// declare colors
 	// black := MakeColor(0, 0, 0)
 	// grey := MakeColor(211, 211, 211)  //background
-	red := MakeColor(0, 0, 0)         //bad food
-	green := MakeColor(0, 255, 0)     //good food
-	yellow := MakeColor(255, 255, 0)  //Agent
-	white := MakeColor(255, 255, 255) //light
+	red := MakeColor(255, 0, 0)      //bad food
+	green := MakeColor(0, 255, 0)    //good food
+	yellow := MakeColor(255, 255, 0) //Agent
+	// white := MakeColor(255, 255, 255)
+	blue := MakeColor(0, 0, 255) //light
 
 	c := CreateNewMazes(width, height) //Create new drawer for board
 	//set the entire board as grey
@@ -78,20 +79,30 @@ func DrawGameBoard(board multiAgentMatrix, cellWidth int, CN float64) image.Imag
 					c.Fill()
 				} else if board[i][j].foodChemo == 0 {
 					c.SetFillColor(red) // bad food
-					c.Rectangle(float64(i), float64(j), 10.0, 10.0)
+					c.Rectangle(float64(i), float64(j), 5.0, 5.0)
 					c.Fill()
 				}
 			}
-			if board[i][j].IsAgent {
+			// if board[i][j].IsAgent {
+			// 	c.SetFillColor(yellow)
+			// 	c.Circle(float64(i), float64(j), 1.0) //draw a circle of radius 1
+			// 	c.Fill()
+			// }
+
+			if board[i][j].trailChemo > 9 {
 				c.SetFillColor(yellow)
 				c.Circle(float64(i), float64(j), 1.0) //draw a circle of radius 1
 				c.Fill()
-
 			}
+			// if board[i][j].trailChemo > 20 {
+			// 	c.SetFillColor(red)
+			// 	c.Circle(float64(i), float64(j), 1.0) //draw a circle of radius 1
+			// 	c.Fill()
+			// }
 
 			if board[i][j].haslight {
-				c.SetFillColor(white)
-				c.Rectangle(float64(i), float64(j), 10.0, 10.0)
+				c.SetFillColor(blue)
+				c.Rectangle(float64(i), float64(j), 5.0, 5.0)
 				c.Fill()
 			}
 			// c.SetFillColor(white)
