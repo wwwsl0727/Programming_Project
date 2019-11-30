@@ -60,7 +60,7 @@ func main() {
 	RT := 15
 	ET := -10
 
-	numGens := 200
+	numGens := 20000
 
 	emptyboard := InitializeBoard(row, col)
 	matrix0 := InitializeBoard(row, col) // Used to pass to later simulation after initialization
