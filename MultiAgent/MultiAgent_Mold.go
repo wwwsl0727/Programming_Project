@@ -60,11 +60,7 @@ func main() {
 	RT := 15
 	ET := -10
 
-<<<<<<< HEAD
 	numGens := 10000
-=======
-	numGens := 200
->>>>>>> 735b40624a9e1c78ee72b400cdfcafa5cb617d22
 
 	emptyboard := InitializeBoard(row, col)
 	matrix0 := InitializeBoard(row, col) // Used to pass to later simulation after initialization
@@ -349,49 +345,57 @@ func intializeHalfBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int,
 
 ////////////////////////// Shili's part
 func intializeCornerBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int, sensorDiagonalL, sensorAngle, CN float64) multiAgentMatrix {
-	//The center is 100,190
-	for i := 99; i <= 101; i++ {
-		for j := 189; j <= 191; j++ {
+	//The center is 36,51
+	for i := 35; i <= 37; i++ {
+		for j := 50; j <= 52; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
 
-	//The center is 50,136
-	for i := 59; i <= 51; i++ {
-		for j := 135; j <= 137; j++ {
+	//The center is 85,80
+	for i := 84; i <= 86; i++ {
+		for j := 79; j <= 81; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
 
-	//The center is 125,159
-	for i := 124; i <= 126; i++ {
-		for j := 158; j <= 160; j++ {
+	//The center is 140,60
+	for i := 139; i <= 141; i++ {
+		for j := 59; j <= 61; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
 
-	//The center is 75,68
-	for i := 74; i <= 76; i++ {
-		for j := 67; j <= 69; j++ {
+	//The center is 70,130
+	for i := 69; i <= 71; i++ {
+		for j := 129; j <= 131; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
 
-	//The center is 30,20
-	for i := 29; i <= 31; i++ {
-		for j := 19; j <= 21; j++ {
+	//The center is 130,146
+	for i := 129; i <= 131; i++ {
+		for j := 145; j <= 147; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
 
-	//The center is 125,40
-	for i := 124; i <= 126; i++ {
-		for j := 39; j <= 41; j++ {
+	//The center is 179,119
+	for i := 178; i <= 181; i++ {
+		for j := 118; j <= 120; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //10
+		}
+	}
+
+	//The center is 99,184
+	for i := 98; i <= 100; i++ {
+		for j := 183; j <= 185; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
