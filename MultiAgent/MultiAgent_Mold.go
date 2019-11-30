@@ -60,7 +60,7 @@ func main() {
 	RT := 15
 	ET := -10
 
-	numGens := 20000
+	numGens := 10000
 
 	emptyboard := InitializeBoard(row, col)
 	matrix0 := InitializeBoard(row, col) // Used to pass to later simulation after initialization
@@ -117,7 +117,6 @@ func main() {
 	for n := 0; n <= numGens-1; n++ {
 
 		currBoard := CopyBoard(boards[n])
-
 		//For boundary,both the foodChemo and the trailChemo is 0.
 		currBoard = UpdateChemo(filterN, dampN, boards[n], "food")
 		//fmt.Println(currBoard)
@@ -196,8 +195,16 @@ func main() {
 	// 	}
 	// }
 	//fmt.Println(boards[1])
-	imagefile := DrawGameBoards(boards, 1, CN)
-	ImagesToGIF(imagefile, "Multiagent_GIF")
+
+	// quickboards := make([]multiAgentMatrix, 0)
+	// for i := 0; i < len(boards); i += 100 {
+	// 	quickboards = append(quickboards, boards[i])
+	// 	fmt.Println(len(quickboards))
+	// }
+	// fmt.Println(len(quickboards))
+	//
+	// imagefile := DrawGameBoards(quickboards, 1, CN)
+	// ImagesToGIF(imagefile, "Multiagent_GIF")
 }
 
 //50% mold, two good foods, two bad foods with chemo 0.
