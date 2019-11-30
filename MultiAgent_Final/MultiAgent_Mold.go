@@ -60,7 +60,7 @@ func main() {
 	RT := 15
 	ET := -10
 
-	numGens := 15000
+	numGens := 20000
 
 	// emptyboard := InitializeBoard(row, col)
 	matrix0 := InitializeBoard(row, col) // Used to pass to later simulation after initialization
@@ -88,6 +88,7 @@ func main() {
 		}
 		RT += windlevel //originally 15, make it harder to reproduce
 		ET += windlevel //originally -10, make it easy to die
+		matrix0 = intializeHalfBoard(matrix0, row, col, sensorArmLength, sensorDiagonalL, sensorAngle, CN)
 
 	} else if condition == "normal" {
 		situation := os.Args[2]
@@ -111,8 +112,9 @@ func main() {
 	fmt.Println("All command line arguments read successfully.")
 
 	//Return boards to plot.
-	boards := SimulateSlimeMold(matrix0, numGens, sensorArmLength, sensorAngle, sensorDiagonalL, depT, dampT, filterT, WL, WT, WN, CN, CL, dampN, filterN, RT, ET)
-	imagefile := DrawGameBoards(boards, 1, CN)
+	quickboards := SimulateSlimeMold(matrix0, numGens, sensorArmLength, sensorAngle, sensorDiagonalL, depT, dampT, filterT, WL, WT, WN, CN, CL, dampN, filterN, RT, ET)
+
+	imagefile := DrawGameBoards(quickboards, 1, CN)
 	ImagesToGIF(imagefile, "Multiagent_GIF")
 }
 
@@ -133,16 +135,21 @@ func SimulateSlimeMold(matrix0 multiAgentMatrix,
 	filterN int,
 	RT int,
 	ET int) []multiAgentMatrix {
-	boards := make([]multiAgentMatrix, numGens+1)
-	boards[0] = matrix0
+	newboard := matrix0
+	quickboards := make([]multiAgentMatrix, 1)
+	quickboards[0] = matrix0
 	for n := 1; n < numGens+1; n++ {
-		fmt.Println(n)
-		boards[n] = UpdateBoard(boards[n-1], sensorArmLength, sensorAngle,
+		// fmt.Println(n)
+		newboard = UpdateBoard(newboard, sensorArmLength, sensorAngle,
 			sensorDiagonalL, depT, dampT,
 			filterN, WL, WT, WN,
 			CN, CL, dampN, filterT, RT, ET)
+
+		if n%100 == 0 {
+			quickboards = append(quickboards, newboard)
+		}
 	}
-	return boards
+	return quickboards
 }
 
 func UpdateBoard(currBoard multiAgentMatrix,
@@ -289,25 +296,33 @@ func intializeLightBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength, x,
 		matrix0[i] = row
 	}
 
-	//The center is 10,100
-	for i := 9; i <= 11; i++ {
+	//The center is 100,50
+	for i := 99; i <= 101; i++ {
+		for j := 49; j <= 51; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //10
+		}
+	}
+
+	//The center is 40,150
+	for i := 39; i <= 41; i++ {
+		for j := 149; j <= 151; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //10
+		}
+	}
+
+	//The center is 160,150
+	for i := 159; i <= 161; i++ {
+		for j := 149; j <= 151; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //10
+		}
+	}
+
+	//food in light
+	for i := 99; i <= 101; i++ {
 		for j := 99; j <= 101; j++ {
-			matrix0[i][j].IsFood = true
-			matrix0[i][j].foodChemo = CN //10
-		}
-	}
-
-	//The center is 190,10
-	for i := 189; i <= 191; i++ {
-		for j := 9; j <= 11; j++ {
-			matrix0[i][j].IsFood = true
-			matrix0[i][j].foodChemo = CN //10
-		}
-	}
-
-	//The center is 190,190
-	for i := 189; i <= 191; i++ {
-		for j := 189; j <= 191; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
@@ -342,25 +357,25 @@ func intializeHalfBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int,
 		matrix0[i] = row
 	}
 
-	//The center is 10,100
+	//The center is 100,50
 	for i := 99; i <= 101; i++ {
-		for j := 9; j <= 11; j++ {
+		for j := 49; j <= 51; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
 
-	//The center is 190,10
-	for i := 9; i <= 11; i++ {
-		for j := 189; j <= 191; j++ {
+	//The center is 40,150
+	for i := 39; i <= 41; i++ {
+		for j := 149; j <= 151; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
 
-	//The center is 190,190
-	for i := 189; i <= 191; i++ {
-		for j := 189; j <= 191; j++ {
+	//The center is 160,150
+	for i := 159; i <= 161; i++ {
+		for j := 149; j <= 151; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
@@ -368,7 +383,6 @@ func intializeHalfBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int,
 	return matrix0
 }
 
-////////////////////////// Shili's part
 func intializeCornerBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int, sensorDiagonalL, sensorAngle, CN float64) multiAgentMatrix {
 	//The center is 36,51
 	for i := 35; i <= 37; i++ {
