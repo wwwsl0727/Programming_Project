@@ -26,6 +26,7 @@ type Agent struct {
 	direction       float64 // direction could be the multiple of pi/4
 	sensorLength    int     // 7 in 50% agent case
 	sensorDiagonalL float64 // float64(5)*math.Sqrt(2) for sensor in diagnol of axix
+	isMoved         bool    //default false, if the agent in
 }
 
 func main() {
@@ -46,6 +47,7 @@ func main() {
 	sensorDiagonalL := float64(5) * math.Sqrt(2)
 	depT := 5.0  //The quantity of trail deposited by an agent
 	dampT := 0.1 //Diffusion damping factor of trail
+	// dampT := 0.3
 	// filter for trail 3x3
 	filterT := 3
 
@@ -120,7 +122,7 @@ func main() {
 	quickboards := SimulateSlimeMold(matrix0, numGens, numInterval, sensorArmLength, sensorAngle, sensorDiagonalL, depT, dampT, filterT, WL, WT, WN, CN, CL, dampN, filterN, RT, ET)
 	elapsed1 := time.Since(start1)
 	log.Printf("model takes %s\n", elapsed1)
-	
+
 	start2 := time.Now()
 	imagefile := DrawGameBoards(quickboards, 1, CN)
 	ImagesToGIF(imagefile, fileName)
@@ -158,6 +160,18 @@ func SimulateSlimeMold(matrix0 multiAgentMatrix,
 	quickboards[0] = matrix0
 
 	currBoard := CopyBoard(matrix0)
+
+	//Initialize index array,this is used to update agent in a shuffle order later
+	//1,2,...len(board)-2
+	rowIndices := make([]int, numRows-2)
+	for i := 1; i <= numRows-2; i++ {
+		rowIndices[i-1] = i
+	}
+	colIndices := make([]int, numCols-2)
+	for i := 1; i <= numCols-2; i++ {
+		colIndices[i-1] = i
+	}
+
 	for n := 1; n < numGens+1; n++ {
 
 		boardCopy := CopyBoard(currBoard)
@@ -165,11 +179,30 @@ func SimulateSlimeMold(matrix0 multiAgentMatrix,
 		currBoard.UpdateBoard(boardCopy, sensorArmLength, sensorAngle,
 			sensorDiagonalL, depT, dampT,
 			filterN, WL, WT, WN,
-			CN, CL, dampN, filterT, RT, ET)
+			CN, CL, dampN, filterT, RT, ET, rowIndices, colIndices)
 
 		if n%(numInterval) == 0 {
 			currBoardCopy := CopyBoard(currBoard)
 			quickboards[n/numInterval] = currBoardCopy
+			/*
+				for j := range currBoardCopy[0] {
+					if math.Abs(currBoardCopy[0][j].trailChemo) > 0.0001 || math.Abs(currBoardCopy[0][j].foodChemo) > 0.0001 {
+						fmt.Printf("boundary 0,%d is %f, %f, not 0\n", j, currBoardCopy[0][j].trailChemo, currBoardCopy[0][j].foodChemo)
+					}
+					if math.Abs(currBoardCopy[numRows-1][j].trailChemo) > 0.0001 || math.Abs(currBoardCopy[numRows-1][j].foodChemo) > 0.0001 {
+						fmt.Printf("boundary numRows-1,%d is %f, %f, not 0\n", j, currBoardCopy[numRows-1][j].trailChemo, currBoardCopy[numRows-1][j].foodChemo)
+					}
+				}
+
+				for i := range currBoardCopy {
+					if math.Abs(currBoardCopy[i][0].trailChemo) > 0.0001 || math.Abs(currBoardCopy[i][0].foodChemo) > 0.0001 {
+						fmt.Printf("boundary %d,0 is %f, %f,not 0\n", i, currBoardCopy[i][0].trailChemo, currBoardCopy[i][0].foodChemo)
+					}
+					if math.Abs(currBoardCopy[i][numCols-1].trailChemo) > 0.0001 || math.Abs(currBoardCopy[i][numCols-1].foodChemo) > 0.0001 {
+						fmt.Printf("boundary %d,numCols-1 is %f ,%f, not 0\n", i, currBoardCopy[i][numCols-1].trailChemo, currBoardCopy[i][numCols-1].foodChemo)
+					}
+				}
+			*/
 		}
 	}
 

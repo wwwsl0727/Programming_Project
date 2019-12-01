@@ -89,14 +89,14 @@ func DrawGameBoard(board multiAgentMatrix, cellWidth int, CN float64) image.Imag
 				c.Circle(float64(i), float64(j), 1.0) //draw a circle of radius 1
 				c.Fill()
 			}
-/*
-			if board[i][j].trailChemo > 0 && board[i][j].trailChemo <= 0.1 {
-				c.SetFillColor(yellow)
-				c.Circle(float64(i), float64(j), 1.0) //draw a circle of radius 1
-				c.Fill()
-				//fmt.Println(i, j, board[i][j].trailChemo, "yellow")
-				//fmt.Println("finish one iteration")
-			}
+			/*
+				if board[i][j].trailChemo > 0 && board[i][j].trailChemo <= 0.1 {
+					c.SetFillColor(yellow)
+					c.Circle(float64(i), float64(j), 1.0) //draw a circle of radius 1
+					c.Fill()
+					//fmt.Println(i, j, board[i][j].trailChemo, "yellow")
+					//fmt.Println("finish one iteration")
+				}
 			*/
 			// if board[i][j].trailChemo > 0.05 && board[i][j].trailChemo < 0.1 {
 			// 	c.SetFillColor(red)
@@ -104,13 +104,13 @@ func DrawGameBoard(board multiAgentMatrix, cellWidth int, CN float64) image.Imag
 			// 	c.Fill()
 			// }
 			/*
-			if board[i][j].trailChemo > 0.1 {
-				c.SetFillColor(blue)
-				c.Circle(float64(i), float64(j), 1.0) //draw a circle of radius 1
-				c.Fill()
-				//	fmt.Println(i, j, board[i][j].trailChemo, "blue")
-			}
-*/
+				if board[i][j].trailChemo > 0.1 {
+					c.SetFillColor(blue)
+					c.Circle(float64(i), float64(j), 1.0) //draw a circle of radius 1
+					c.Fill()
+					//	fmt.Println(i, j, board[i][j].trailChemo, "blue")
+				}
+			*/
 			if board[i][j].haslight {
 				c.SetFillColor(blue)
 				c.Rectangle(float64(i), float64(j), 5.0, 5.0)

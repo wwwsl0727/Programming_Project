@@ -3,7 +3,7 @@ package main
 import (
 	"math"
 	"math/rand"
-//	"fmt"
+	//"fmt"
 )
 
 func (board multiAgentMatrix) UpdateBoard(boardCopy multiAgentMatrix,
@@ -21,20 +21,36 @@ func (board multiAgentMatrix) UpdateBoard(boardCopy multiAgentMatrix,
 	dampN float64,
 	filterT int,
 	RT int,
-	ET int) {
+	ET int,
+	rowIndices []int,
+	colIndices []int) {
 
 	//For boundary,both the foodChemo and the trailChemo is 0.
 	board.UpdateChemo(filterN, dampN, boardCopy, "food")
 
 	board.UpdateChemo(filterT, dampT, boardCopy, "trial")
+	//The previous move the left and up corner is because the agents is updated from left to right and
+	//from above to bottom. Therefore, now we update each agent in a random order. Also in order not to get the
+	//boundary, the x and y shuffle from [1,2,...len(board)-2] instead of [0,1,...len(board-1)].
+	rand.Shuffle(len(rowIndices), func(i, j int) {
+		rowIndices[i], rowIndices[j] = rowIndices[j], rowIndices[i]
+	})
+	rand.Shuffle(len(colIndices), func(i, j int) {
+		colIndices[i], colIndices[j] = colIndices[j], colIndices[i]
+	})
+	// fmt.Println()
+	//
+	// fmt.Println("update all agents")
 
 	//update agent
-	for r := range board {
-		for c := range board[0] {
+	for i := range rowIndices {
+		for j := range colIndices {
 			//sense direction and change direction to the higher chemo direction.
+			r := rowIndices[i]
+			c := colIndices[j]
 			if boardCopy[r][c].IsAgent {
-				// fmt.Println("Isagent", r, c)
-				// fmt.Println("initialAgentDirection",board[r][c].agent.direction/(math.Pi/4.0))
+				// fmt.Println("the agent in the previous board:", r, c)
+				// fmt.Println("the direction of agent in the previous board:", board[r][c].agent.direction/(math.Pi/4.0))
 				agentDirection := board.SynthesisComparator(r, c, WT, WN, WL, sensorAngle)
 
 				//direction 0,+- pi/2; +- pi; +- 3pi/2; +-2pi... / pi/4 = 0;2;4;6... a=L;else a=DiagonalL
@@ -50,12 +66,12 @@ func (board multiAgentMatrix) UpdateBoard(boardCopy multiAgentMatrix,
 					a = sensorDiagonalL
 				}
 
-				forwardx = r + int(a*math.Cos(agentDirection))
-				forwardy = c + int(a*math.Sin(agentDirection))
+				forwardx = r + int(math.Round(a*math.Cos(agentDirection)))
+				forwardy = c + int(math.Round(a*math.Sin(agentDirection)))
 
-				// fmt.Println("synthesizeComparatorDirection",(board.SynthesisComparator(r, c, WT, WN, WL, sensorAngle))/(math.Pi/4.0))
-				// fmt.Println("agentDirection",agentDirection/(math.Pi/4.0))
-				// fmt.Println("forwarddx,forward dy", forwardx, forwardy)
+				// fmt.Println("sensed direction in current board for the agent", agentDirection/(math.Pi/4.0))
+				// fmt.Println("dx,dy", int(a*math.Cos(agentDirection)), int(a*math.Sin(agentDirection)))
+				// fmt.Println("the direction of the current agent: forwarddx,forwarddy", forwardx, forwardy)
 
 				currCell := &board[r][c]
 				//fmt.Println("forwardx",forwardx)
@@ -251,11 +267,13 @@ func (matrix multiAgentMatrix) SynthesisComparator(row, col int, WT, WN, WL, sen
 	// fmt.Println("righty", righty)
 	//Get sample chemoattractant values from sensors.
 	// If left sensor and right sensor are all in the matrix
+	var FL float64
+	var FR float64
 	if InField(numRows, numCols, leftx, lefty) && InField(numRows, numCols, rightx, righty) {
 		sensorLeft := matrix[leftx][lefty]
-		FL := calculateScore(sensorLeft, WT, WN, WL)
+		FL = calculateScore(sensorLeft, WT, WN, WL)
 		sensorRight := matrix[rightx][righty]
-		FR := calculateScore(sensorRight, WT, WN, WL)
+		FR = calculateScore(sensorRight, WT, WN, WL)
 		if FL < FR {
 			//rotate right
 			matrix[row][col].agent.direction += sensorAngle
@@ -282,6 +300,8 @@ func (matrix multiAgentMatrix) SynthesisComparator(row, col int, WT, WN, WL, sen
 		//If both side is out of bound, the agent turns back
 		matrix[row][col].agent.direction += math.Pi
 	}
+	// fmt.Printf("left sensor with location %d %d, chemo is %f\n", leftx, lefty, FL)
+	// fmt.Printf("right sensor with location %d %d, chemo is %f\n", rightx, righty, FR)
 	return matrix[row][col].agent.direction
 
 }
@@ -311,10 +331,10 @@ func CalculateSensorLocation(agentDirection, sensorAngle, DiagonalL float64, row
 	} else {
 		a = DiagonalL
 	}
-	leftx = row + int(a*math.Cos(leftDirection))
-	lefty = col + int(a*math.Sin(leftDirection))
-	rightx = row + int(a*math.Cos(rightDirection))
-	righty = col + int(a*math.Sin(rightDirection))
+	leftx = row + int(math.Round(a*math.Cos(leftDirection)))
+	lefty = col + int(math.Round(a*math.Sin(leftDirection)))
+	rightx = row + int(math.Round(a*math.Cos(rightDirection)))
+	righty = col + int(math.Round(a*math.Sin(rightDirection)))
 	return leftx, lefty, rightx, righty
 }
 
@@ -326,7 +346,7 @@ func calculateScore(B box, WT, WN, WL float64) float64 {
 //InField takes a the numRows and numCols of a matrix and i/j indices.  It returns true if (i,j) is a valid entry
 //of the board.
 func InField(numRows, numCols, i, j int) bool {
-	if i < 0 || j < 0 || i > numRows-1 || j > numCols-1 {
+	if i <= 0 || j <= 0 || i >= numRows-1 || j >= numCols-1 {
 		return false
 	}
 	// if we make it here, we are in the field.
