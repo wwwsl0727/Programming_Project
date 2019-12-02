@@ -57,38 +57,67 @@ func intializeLightBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength, x,
 		row = GenerateAgent(row, sensorArmLength, sensorDiagonalL, sensorAngle)
 		matrix0[i] = row
 	}
-
-	//The center is 100,50
-	for i := 99; i <= 101; i++ {
-		for j := 49; j <= 51; j++ {
+	//The center is 1,1
+	for i := 0; i <= 2; i++ {
+		for j := 0; j <= 2; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
 
-	//The center is 40,150
-	for i := 39; i <= 41; i++ {
-		for j := 149; j <= 151; j++ {
+	//The center is 198,1
+	for i := 197; i <= 199; i++ {
+		for j := 0; j <= 2; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
 
-	//The center is 160,150
-	for i := 159; i <= 161; i++ {
-		for j := 149; j <= 151; j++ {
+	//The center is 198,198
+	for i := 197; i <= 197; i++ {
+		for j := 197; j <= 197; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
-
-	//food in light
-	for i := 99; i <= 101; i++ {
-		for j := 99; j <= 101; j++ {
+	//The center is 1,198
+	for i := 0; i <= 2; i++ {
+		for j := 197; j <= 199; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
+	// //The center is 100,50
+	// for i := 99; i <= 101; i++ {
+	// 	for j := 49; j <= 51; j++ {
+	// 		matrix0[i][j].IsFood = true
+	// 		matrix0[i][j].foodChemo = CN //10
+	// 	}
+	// }
+	//
+	// //The center is 40,150
+	// for i := 39; i <= 41; i++ {
+	// 	for j := 149; j <= 151; j++ {
+	// 		matrix0[i][j].IsFood = true
+	// 		matrix0[i][j].foodChemo = CN //10
+	// 	}
+	// }
+	//
+	// //The center is 160,150
+	// for i := 159; i <= 161; i++ {
+	// 	for j := 149; j <= 151; j++ {
+	// 		matrix0[i][j].IsFood = true
+	// 		matrix0[i][j].foodChemo = CN //10
+	// 	}
+	// }
+	//
+	// //food in light
+	// for i := 99; i <= 101; i++ {
+	// 	for j := 99; j <= 101; j++ {
+	// 		matrix0[i][j].IsFood = true
+	// 		matrix0[i][j].foodChemo = CN //10
+	// 	}
+	// }
 
 	//Given the center of light, the boxes in light source has stronger light concentration
 	addlight(matrix0, x, y, CL)
@@ -98,8 +127,8 @@ func intializeLightBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength, x,
 
 //Add light concentration to a square of length 9
 func addlight(matrix0 multiAgentMatrix, x, y int, CL float64) {
-	for i := x - 4; i <= x+4; i++ {
-		for j := y - 4; i <= y+4; i++ {
+	for i := x - 40; i <= x+40; i++ {
+		for j := y - 40; j <= y+40; j++ {
 			if InField(200, 200, i, j) {
 				matrix0[i][j].haslight = true
 				matrix0[i][j].light = CL
@@ -144,60 +173,59 @@ func intializeHalfBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int,
 		}
 	*/
 	//The center is 100,150
-	for i := 99; i <= 101; i++ {
-		for j := 149; j <= 151; j++ {
+	// for i := 99; i <= 101; i++ {
+	// 	for j := 149; j <= 151; j++ {
+	// 		matrix0[i][j].IsFood = true
+	// 		matrix0[i][j].foodChemo = CN //10
+	// 	}
+	// }
+	// //The center is 160,50
+	// for i := 159; i <= 161; i++ {
+	// 	for j := 49; j <= 51; j++ {
+	// 		matrix0[i][j].IsFood = true
+	// 		matrix0[i][j].foodChemo = CN //10
+	// 	}
+	// }
+	//
+	// //The center is 40,50
+	// for i := 39; i <= 41; i++ {
+	// 	for j := 49; j <= 51; j++ {
+	// 		matrix0[i][j].IsFood = true
+	// 		matrix0[i][j].foodChemo = CN //10
+	// 	}
+	// }
+
+	//The center is 1,1
+	for i := 0; i <= 2; i++ {
+		for j := 0; j <= 2; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
 
-	//The center is 160,50
-	for i := 159; i <= 161; i++ {
-		for j := 49; j <= 51; j++ {
+	//The center is 198,1
+	for i := 197; i <= 199; i++ {
+		for j := 0; j <= 2; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
 
-	//The center is 40,50
-	for i := 39; i <= 41; i++ {
-		for j := 49; j <= 51; j++ {
+	//The center is 198,198
+	for i := 197; i <= 197; i++ {
+		for j := 197; j <= 197; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
-	/*
-		//The center is 1,1
-		for i := 0; i <= 2; i++ {
-			for j := 0; j <= 2; j++ {
-				matrix0[i][j].IsFood = true
-				matrix0[i][j].foodChemo = CN //10
-			}
+	//The center is 1,198
+	for i := 0; i <= 2; i++ {
+		for j := 197; j <= 199; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //10
 		}
+	}
 
-		//The center is 198,1
-		for i := 197; i <= 199; i++ {
-			for j := 0; j <= 2; j++ {
-				matrix0[i][j].IsFood = true
-				matrix0[i][j].foodChemo = CN //10
-			}
-		}
-
-		//The center is 198,198
-		for i := 197; i <= 197; i++ {
-			for j := 197; j <= 197; j++ {
-				matrix0[i][j].IsFood = true
-				matrix0[i][j].foodChemo = CN //10
-			}
-		}
-		//The center is 1,198
-		for i := 0; i <= 2; i++ {
-			for j := 197; j <= 199; j++ {
-				matrix0[i][j].IsFood = true
-				matrix0[i][j].foodChemo = CN //10
-			}
-		}
-	*/
 	return matrix0
 }
 

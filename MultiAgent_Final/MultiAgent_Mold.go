@@ -110,11 +110,9 @@ func main() {
 		panic("wrong condition input!")
 	}
 
-	numGens_input := os.Args[3]
-	numGens, _ := strconv.Atoi(numGens_input)
-	numInterval_input := os.Args[4]
-	numInterval, _ := strconv.Atoi(numInterval_input)
-	fileName := os.Args[5]
+	numGens := 20000
+	numInterval := 20
+	fileName := "corner"
 	fmt.Println("All command line arguments read successfully.")
 	//Return boards to plot.
 
