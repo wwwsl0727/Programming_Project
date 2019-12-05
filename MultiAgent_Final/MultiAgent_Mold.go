@@ -47,7 +47,6 @@ func main() {
 	sensorDiagonalL := float64(5) * math.Sqrt(2)
 	depT := 5.0  //The quantity of trail deposited by an agent
 	dampT := 0.1 //Diffusion damping factor of trail
-	// dampT := 0.3
 	// filter for trail 3x3
 	filterT := 3
 
@@ -62,7 +61,6 @@ func main() {
 	//motion counter >= RT, reproduction; motion counter < ET, elimation
 	RT := 15
 	ET := -10
-	// emptyboard := InitializeBoard(row, col)
 	matrix0 := InitializeBoard(row, col) // Used to pass to later simulation after initialization
 	fmt.Println("please input condition(normal), situation(half/corner), numGens,numIntervals,filename")
 	//Different Initilization based on command line
@@ -111,18 +109,20 @@ func main() {
 	}
 
 	numGens_input := os.Args[3]
-	numGens, _ := strconv.Atoi(numGens_input)
+	numGens, _ := strconv.Atoi(numGens_input) // number of generations
 	numInterval_input := os.Args[4]
-	numInterval, _ := strconv.Atoi(numInterval_input)
-	fileName := os.Args[5]
+	numInterval, _ := strconv.Atoi(numInterval_input) // the interval to draw a picture
+	fileName := os.Args[5]              // the filename of the GIF.
 	fmt.Println("All command line arguments read successfully.")
 	//Return boards to plot.
 
+	//Start simulation
 	start1 := time.Now()
 	quickboards := SimulateSlimeMold(matrix0, numGens, numInterval, sensorArmLength, sensorAngle, sensorDiagonalL, depT, dampT, filterT, WL, WT, WN, CN, CL, dampN, filterN, RT, ET)
 	elapsed1 := time.Since(start1)
 	log.Printf("model takes %s\n", elapsed1)
 
+	//Draw boards.
 	start2 := time.Now()
 	imagefile := DrawGameBoards(quickboards, 1, CN)
 	ImagesToGIF(imagefile, fileName)
@@ -131,6 +131,8 @@ func main() {
 
 }
 
+
+//Simulation takes all parameters and store a matrix every numInterval generations.
 func SimulateSlimeMold(matrix0 multiAgentMatrix,
 	numGens int,
 	numInterval int,
@@ -152,6 +154,8 @@ func SimulateSlimeMold(matrix0 multiAgentMatrix,
 	numRows := len(matrix0)
 	numCols := len(matrix0[0])
 	numBoards := numGens/numInterval + 1
+
+	//The boards to return for GIF.
 	quickboards := make([]multiAgentMatrix, numBoards)
 	//Initialize every element of quickboards
 	for i := range quickboards {
@@ -172,6 +176,7 @@ func SimulateSlimeMold(matrix0 multiAgentMatrix,
 		colIndices[i-1] = i
 	}
 
+	//Append the matrix to the returning slice of matrixes every numInterval iteration.
 	for n := 1; n < numGens+1; n++ {
 
 		boardCopy := CopyBoard(currBoard)
@@ -184,25 +189,7 @@ func SimulateSlimeMold(matrix0 multiAgentMatrix,
 		if n%(numInterval) == 0 {
 			currBoardCopy := CopyBoard(currBoard)
 			quickboards[n/numInterval] = currBoardCopy
-			/*
-				for j := range currBoardCopy[0] {
-					if math.Abs(currBoardCopy[0][j].trailChemo) > 0.0001 || math.Abs(currBoardCopy[0][j].foodChemo) > 0.0001 {
-						fmt.Printf("boundary 0,%d is %f, %f, not 0\n", j, currBoardCopy[0][j].trailChemo, currBoardCopy[0][j].foodChemo)
-					}
-					if math.Abs(currBoardCopy[numRows-1][j].trailChemo) > 0.0001 || math.Abs(currBoardCopy[numRows-1][j].foodChemo) > 0.0001 {
-						fmt.Printf("boundary numRows-1,%d is %f, %f, not 0\n", j, currBoardCopy[numRows-1][j].trailChemo, currBoardCopy[numRows-1][j].foodChemo)
-					}
-				}
 
-				for i := range currBoardCopy {
-					if math.Abs(currBoardCopy[i][0].trailChemo) > 0.0001 || math.Abs(currBoardCopy[i][0].foodChemo) > 0.0001 {
-						fmt.Printf("boundary %d,0 is %f, %f,not 0\n", i, currBoardCopy[i][0].trailChemo, currBoardCopy[i][0].foodChemo)
-					}
-					if math.Abs(currBoardCopy[i][numCols-1].trailChemo) > 0.0001 || math.Abs(currBoardCopy[i][numCols-1].foodChemo) > 0.0001 {
-						fmt.Printf("boundary %d,numCols-1 is %f ,%f, not 0\n", i, currBoardCopy[i][numCols-1].trailChemo, currBoardCopy[i][numCols-1].foodChemo)
-					}
-				}
-			*/
 		}
 	}
 

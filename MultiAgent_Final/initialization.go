@@ -108,9 +108,8 @@ func addlight(matrix0 multiAgentMatrix, x, y int, CL float64) {
 	}
 }
 
+//make the matrix which has 50% of its box has agent
 func intializeHalfBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int, sensorDiagonalL, sensorAngle, CN float64) multiAgentMatrix {
-	//make the matrix which has 50% of its box has agent
-
 	for i := range matrix0 {
 		//for all boxes, intial foodChemo & trailChemo are 0.
 		//IsFood, IsAgent are false
@@ -118,54 +117,56 @@ func intializeHalfBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int,
 		row = GenerateAgent(row, sensorArmLength, sensorDiagonalL, sensorAngle)
 		matrix0[i] = row
 	}
-	/*
-		//The center is 100,50
-		for i := 99; i <= 101; i++ {
-			for j := 49; j <= 51; j++ {
-				matrix0[i][j].IsFood = true
-				matrix0[i][j].foodChemo = CN //10
-			}
-		}
-
-		//The center is 40,150
-		for i := 39; i <= 41; i++ {
-			for j := 149; j <= 151; j++ {
-				matrix0[i][j].IsFood = true
-				matrix0[i][j].foodChemo = CN //10
-			}
-		}
-
-		//The center is 160,150
-		for i := 159; i <= 161; i++ {
-			for j := 149; j <= 151; j++ {
-				matrix0[i][j].IsFood = true
-				matrix0[i][j].foodChemo = CN //10
-			}
-		}
-	*/
-	//The center is 100,150
+/*
+	//The center is 100,50
 	for i := 99; i <= 101; i++ {
+		for j := 49; j <= 51; j++ {
+			matrix0[i][j].IsFood = true
+			matrix0[i][j].foodChemo = CN //10
+		}
+	}
+
+	//The center is 40,150
+	for i := 39; i <= 41; i++ {
 		for j := 149; j <= 151; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
 
-	//The center is 160,50
+	//The center is 160,150
 	for i := 159; i <= 161; i++ {
-		for j := 49; j <= 51; j++ {
+		for j := 149; j <= 151; j++ {
 			matrix0[i][j].IsFood = true
 			matrix0[i][j].foodChemo = CN //10
 		}
 	}
+	*/
+	/*
+		//The center is 100,150
+		for i := 99; i <= 101; i++ {
+			for j := 149; j <= 151; j++ {
+				matrix0[i][j].IsFood = true
+				matrix0[i][j].foodChemo = CN //10
+			}
+		}
 
-	//The center is 40,50
-	for i := 39; i <= 41; i++ {
-		for j := 49; j <= 51; j++ {
-			matrix0[i][j].IsFood = true
-			matrix0[i][j].foodChemo = CN //10
+		//The center is 160,50
+		for i := 159; i <= 161; i++ {
+			for j := 49; j <= 51; j++ {
+				matrix0[i][j].IsFood = true
+				matrix0[i][j].foodChemo = CN //10
+			}
 		}
-	}
+
+		//The center is 40,50
+		for i := 39; i <= 41; i++ {
+			for j := 49; j <= 51; j++ {
+				matrix0[i][j].IsFood = true
+				matrix0[i][j].foodChemo = CN //10
+			}
+		}
+	*/
 	/*
 		//The center is 1,1
 		for i := 0; i <= 2; i++ {
@@ -201,6 +202,8 @@ func intializeHalfBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int,
 	return matrix0
 }
 
+//The cornerboard initializes the matrix as putting 7 food sources in the 2d boards. Then put the 9 agents in the southern
+//part and see the evolvement.
 func intializeCornerBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength int, sensorDiagonalL, sensorAngle, CN float64) multiAgentMatrix {
 
 	//The center is 36,51
@@ -290,15 +293,12 @@ func intializeCornerBoard(matrix0 multiAgentMatrix, row, col, sensorArmLength in
 			}
 		}
 	*/
+
 	//	put 9 agents in the southern part,100,190
 	for i := 99; i <= 101; i++ {
 		for j := 189; j <= 191; j++ {
 			matrix0[i][j].IsAgent = true
 			var agent Agent
-			//flag := float64(rand.Intn(8) + 1)
-			//flag := 3.0
-			//agent.direction = flag * sensorAngle
-			//fmt.Println("initial direction", flag)
 			agent.direction = float64(rand.Intn(8)+1) * (math.Pi / float64(4))
 			agent.motionCounter = 0
 			agent.sensorDiagonalL = sensorDiagonalL

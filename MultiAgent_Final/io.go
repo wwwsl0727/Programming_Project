@@ -3,7 +3,6 @@ package main
 import (
 	"math"
 	"math/rand"
-	//"fmt"
 )
 
 func (board multiAgentMatrix) UpdateBoard(boardCopy multiAgentMatrix,
@@ -25,10 +24,12 @@ func (board multiAgentMatrix) UpdateBoard(boardCopy multiAgentMatrix,
 	rowIndices []int,
 	colIndices []int) {
 
-	//For boundary,both the foodChemo and the trailChemo is 0.
+	//For boundary,both the foodChemo and the trailChemo is 0. Use filters to simulate the process of chemical spread
+	//among the 2D board.
 	board.UpdateChemo(filterN, dampN, boardCopy, "food")
 
 	board.UpdateChemo(filterT, dampT, boardCopy, "trial")
+
 	//The previous move the left and up corner is because the agents is updated from left to right and
 	//from above to bottom. Therefore, now we update each agent in a random order. Also in order not to get the
 	//boundary, the x and y shuffle from [1,2,...len(board)-2] instead of [0,1,...len(board-1)].
@@ -38,9 +39,6 @@ func (board multiAgentMatrix) UpdateBoard(boardCopy multiAgentMatrix,
 	rand.Shuffle(len(colIndices), func(i, j int) {
 		colIndices[i], colIndices[j] = colIndices[j], colIndices[i]
 	})
-	// fmt.Println()
-	//
-	// fmt.Println("update all agents")
 
 	//update agent
 	for i := range rowIndices {
@@ -49,8 +47,6 @@ func (board multiAgentMatrix) UpdateBoard(boardCopy multiAgentMatrix,
 			r := rowIndices[i]
 			c := colIndices[j]
 			if boardCopy[r][c].IsAgent {
-				// fmt.Println("the agent in the previous board:", r, c)
-				// fmt.Println("the direction of agent in the previous board:", board[r][c].agent.direction/(math.Pi/4.0))
 				agentDirection := board.SynthesisComparator(r, c, WT, WN, WL, sensorAngle)
 
 				//direction 0,+- pi/2; +- pi; +- 3pi/2; +-2pi... / pi/4 = 0;2;4;6... a=L;else a=DiagonalL
@@ -61,23 +57,15 @@ func (board multiAgentMatrix) UpdateBoard(boardCopy multiAgentMatrix,
 				var a float64
 				if flag%2 == 0 {
 					a = float64(sensorArmLength)
-					//a = float64(7)
 				} else {
 					a = sensorDiagonalL
 				}
 
 				forwardx = r + int(math.Round(a*math.Cos(agentDirection)))
 				forwardy = c + int(math.Round(a*math.Sin(agentDirection)))
-
-				// fmt.Println("sensed direction in current board for the agent", agentDirection/(math.Pi/4.0))
-				// fmt.Println("dx,dy", int(a*math.Cos(agentDirection)), int(a*math.Sin(agentDirection)))
-				// fmt.Println("the direction of the current agent: forwarddx,forwarddy", forwardx, forwardy)
-
 				currCell := &board[r][c]
-				//fmt.Println("forwardx",forwardx)
-				//fmt.Println("forwardy",forwardy)
-				//forward cell in the previous cell as reference
 				forwardcell := &board[forwardx][forwardy]
+
 				//If the forward direction is occupied, change direction randomly and motionCounter--
 				if forwardcell.IsAgent == true {
 					currCell.agent.direction = float64(rand.Intn(8)+1) * sensorAngle
@@ -85,7 +73,6 @@ func (board multiAgentMatrix) UpdateBoard(boardCopy multiAgentMatrix,
 					if currCell.agent.motionCounter < ET {
 						//currentCell die
 						currCell.IsAgent = false
-						// currCell.agent = nil
 					}
 				} else {
 					//If the forward direction is not occupied, move to that direction and leave trail in the new cell
@@ -122,7 +109,7 @@ func (board multiAgentMatrix) UpdateBoard(boardCopy multiAgentMatrix,
 
 }
 
-//board is the previous board
+//Update foodchemo/trial chemo in the 2d board by filters and damping.
 func (board multiAgentMatrix) UpdateChemo(filter int, damp float64, boardCopy multiAgentMatrix, category string) {
 	//use 5*5 average filter, new board is updated based on the previous board
 	board.AverageFilter(filter, category, boardCopy)
@@ -131,6 +118,7 @@ func (board multiAgentMatrix) UpdateChemo(filter int, damp float64, boardCopy mu
 
 }
 
+//Update foodchemo/trial chemo in the 2d board by filters.
 func (board multiAgentMatrix) AverageFilter(filter int, category string, boardCopy multiAgentMatrix) {
 	numRows := len(board)
 	numCols := len(board[0])
@@ -154,6 +142,7 @@ func (board multiAgentMatrix) AverageFilter(filter int, category string, boardCo
 	}
 }
 
+//Update the food/trial chemo based on the chemicals of its neighbors.
 func (board multiAgentMatrix) AverageNeighbor(r, c, filter int, category string, boardCopy multiAgentMatrix) {
 	numRows := len(board)
 	numCols := len(board[0])
@@ -161,6 +150,7 @@ func (board multiAgentMatrix) AverageNeighbor(r, c, filter int, category string,
 	var numNeighbors int
 	var sum float64
 	interval := filter / 2
+
 	for i := r - interval; i <= r+interval; i++ {
 		for j := c - interval; j <= c+interval; j++ {
 			if InField(numRows, numCols, i, j) {
@@ -177,17 +167,14 @@ func (board multiAgentMatrix) AverageNeighbor(r, c, filter int, category string,
 	ave := sum / float64(numNeighbors)
 	if category == "food" {
 		board[r][c].foodChemo = ave
+
 	} else {
 		board[r][c].trailChemo = ave
-		/*
-			if r == 4 && c == 4 {
-				fmt.Println(sum)
-				fmt.Println(numNeighbors)
-			}
-		*/
+
 	}
 }
 
+//The trial/food chemo degenerates as time goes by.
 func (board multiAgentMatrix) Damp(damp float64, category string) {
 	factor := 1.0 - damp
 	for i := range board {
@@ -197,25 +184,10 @@ func (board multiAgentMatrix) Damp(damp float64, category string) {
 				if !board[i][j].IsFood {
 
 					board[i][j].foodChemo *= factor
-					/*
-						if i == 1 && j == 1 {
-							fmt.Println(board[i][j].foodChemo)
-						}
-					*/
 				}
 			} else {
 				board[i][j].trailChemo *= factor
 			}
-
-			/*
-				if !board[i][j].IsFood {
-					if category == "food" {
-						board[i][j].foodChemo = (1 - damp) * board[i][j].foodChemo
-					} else {
-						board[i][j].trailChemo = (1 - damp) * board[i][j].trailChemo
-					}
-				}
-			*/
 		}
 	}
 }
@@ -261,10 +233,7 @@ func (matrix multiAgentMatrix) SynthesisComparator(row, col int, WT, WN, WL, sen
 
 	// The direction of the left,right sensor is based on the current direction of the agent.
 	leftx, lefty, rightx, righty := CalculateSensorLocation(agentDirection, sensorAngle, DiagonalL, row, col, L)
-	// fmt.Println("leftx", leftx)
-	// fmt.Println("lefty", lefty)
-	// fmt.Println("rightx", rightx)
-	// fmt.Println("righty", righty)
+
 	//Get sample chemoattractant values from sensors.
 	// If left sensor and right sensor are all in the matrix
 	var FL float64
@@ -353,6 +322,7 @@ func InField(numRows, numCols, i, j int) bool {
 	return true
 }
 
+//Initialize the board as a row*col multiAgentMatrix.
 func InitializeBoard(row, col int) multiAgentMatrix {
 	board := make(multiAgentMatrix, row)
 	for i := range board {
@@ -361,6 +331,7 @@ func InitializeBoard(row, col int) multiAgentMatrix {
 	return board
 }
 
+//Copy the board and return the new board with the same fields and values but different address.
 func CopyBoard(board multiAgentMatrix) multiAgentMatrix {
 	row := len(board)
 	col := len(board[0])
