@@ -108,11 +108,17 @@ func main() {
 		panic("wrong condition input!")
 	}
 
-	numGens_input := os.Args[3]
-	numGens, _ := strconv.Atoi(numGens_input) // number of generations
-	numInterval_input := os.Args[4]
-	numInterval, _ := strconv.Atoi(numInterval_input) // the interval to draw a picture
-	fileName := os.Args[5]              // the filename of the GIF.
+	/*
+		numGens_input := os.Args[3]
+		numGens, _ := strconv.Atoi(numGens_input) // number of generations
+		numInterval_input := os.Args[4]
+		numInterval, _ := strconv.Atoi(numInterval_input) // the interval to draw a picture
+		fileName := os.Args[5]              // the filename of the GIF.
+	*/
+	numGens := 20000
+	numInterval := 20
+	fileName := "corner"
+
 	fmt.Println("All command line arguments read successfully.")
 	//Return boards to plot.
 

@@ -195,7 +195,7 @@ func (board multiAgentMatrix) Damp(damp float64, category string) {
 //GenerateAgent Generate agent for a row. 50% of boxes have agent
 func GenerateAgent(row []box, sensorArmLength int, sensorDiagonalL, sensorAngle float64) []box {
 
-	for i := range row {
+	for i := 1; i < len(row)-1; i++ {
 		n := rand.Intn(2) //50% chance of having an agent in the box
 		// randomDirection := rand.Intn(8) + 1 //This create a random direction from 1 - 8
 		randomDirection := float64(rand.Intn(8)+1) * sensorAngle //This create a random direction from pi/4 -2pi
@@ -344,6 +344,9 @@ func CopyBoard(board multiAgentMatrix) multiAgentMatrix {
 			board1[i][j].foodChemo = board[i][j].foodChemo
 			board1[i][j].trailChemo = board[i][j].trailChemo
 			board1[i][j].agent = board[i][j].agent
+			board1[i][j].light = board[i][j].light
+			board1[i][j].haslight = board[i][j].haslight
+
 		}
 	}
 	return board1
