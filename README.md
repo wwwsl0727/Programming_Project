@@ -32,7 +32,7 @@ After command line gets the input, the model begins simulation. When the model s
 
 
 ## The efficiency of the model
-Both the model in the simple maze and in the transport map gets stable after <40 generations, taking several seconds.
+Applying the model to the simple maze or to the transport map gets stable after <40 generations, taking several seconds.
 
 ## Part 2: Multi-Agent
 
