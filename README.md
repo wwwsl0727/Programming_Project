@@ -10,7 +10,7 @@ The instructions below will help you to download the code and run on your local 
 git clone https://github.com/wwwsl0727/Programming_Project.
 ```
 
-## Part 1: The shortest path between two spots in a 2D board.
+## Part 1: The shortest path between two spots in a maze/city map.
 
 ## Running the model
 ```
@@ -26,6 +26,14 @@ The fileName is for the name of the output GIF.
 ```
 ./SPinMaze mode isLight fileName
 ```
+
+## The correctness of the model
+After command line gets the input, the model begins simulation. When the model stops, the command line shows "Drawing finishes." The process to find the shortest path is stored in the GIF output. The output has the filename.gif and will be shown under the folder: SPinMaze/.
+
+
+## The efficiency of the model
+Both the model in the simple maze and in the transport map gets stable after <40 generations, taking several seconds.
+
 ## Part 2: Multi-Agent
 
 ## Part 3: interface
