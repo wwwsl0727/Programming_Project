@@ -1,3 +1,4 @@
+//Written by Shili Wang
 package main
 
 import (
@@ -12,7 +13,7 @@ type Maze []*Node
 
 type Node struct {
 	neighbors []*Node
-	pressure  float64 
+	pressure  float64
 	location  OrderedPair
 	name      string
 	city      string
